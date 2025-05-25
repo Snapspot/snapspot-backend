@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Snapspot.Application.Repositories;
 using Snapspot.Domain.Base;
+using Snapspot.Infrastructure.Persistence.DBContext;
 using Snapspot.Shared.Common;
 using System;
 using System.Collections.Generic;

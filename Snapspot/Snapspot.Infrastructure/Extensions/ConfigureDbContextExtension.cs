@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Snapspot.Infrastructure.Options;
-using Snapspot.Infrastructure.Persistence;
+using Snapspot.Infrastructure.Persistence.DBContext;
 using System;
 using System.Collections.Generic;
 using System.Linq;
