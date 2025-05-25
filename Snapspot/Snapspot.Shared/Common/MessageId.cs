@@ -22,5 +22,7 @@ namespace Snapspot.Shared.Common
         public const string E0000 = "E0000"; // The operation wasn't successful
         public const string E0001 = "E0001"; // The item could not be found
         public const string E0002 = "E0002"; // An unexpected error occurred
+        public const string E0003 = "E0003"; // Validation failed. Please check your input.
+        public const string E0004 = "E0004"; // Please check the detailed error list for more information.
     }
 }

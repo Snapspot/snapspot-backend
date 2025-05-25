@@ -1,4 +1,6 @@
 
+using Snapspot.WebAPI.Middlewares;
+
 namespace Snapspot.WebAPI
 {
     public class Program
@@ -22,6 +24,8 @@ namespace Snapspot.WebAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseValidationExceptionMiddleware();
 
             app.UseHttpsRedirection();
 
