@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Snapspot.Application\Snapspot.Application.csproj" />
+    <ProjectReference Include="..\Snapspot.Domain\Snapspot.Domain.csproj" />
   </ItemGroup>
 
 </Project>

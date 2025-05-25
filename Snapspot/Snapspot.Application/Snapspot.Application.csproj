@@ -9,7 +9,6 @@
   <ItemGroup>
     <Folder Include="Extensions\" />
     <Folder Include="Models\" />
-    <Folder Include="Repositories\" />
     <Folder Include="Validators\" />
     <Folder Include="UseCases\" />
     <Folder Include="Services\" />
@@ -17,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Snapspot.Domain\Snapspot.Domain.csproj" />
+    <ProjectReference Include="..\Snapspot.Shared\Snapspot.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
