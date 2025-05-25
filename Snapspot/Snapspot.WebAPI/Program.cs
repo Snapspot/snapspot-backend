@@ -1,4 +1,6 @@
 
+using Snapspot.Infrastructure.Extensions;
+using Snapspot.WebAPI.Extensions;
 using Snapspot.WebAPI.Middlewares;
 
 namespace Snapspot.WebAPI
@@ -10,29 +12,31 @@ namespace Snapspot.WebAPI
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            _ = builder.Services.AddInfrastructure(builder.Configuration);
+            _ = builder.Services.AddWebAPI(builder.Configuration);
 
-            builder.Services.AddControllers();
+            _ = builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            _ = builder.Services.AddEndpointsApiExplorer();
+            _ = builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                _ = app.UseSwagger();
+                _ = app.UseSwaggerUI();
             }
 
-            app.UseValidationExceptionMiddleware();
+            _ = app.UseValidationExceptionMiddleware();
 
-            app.UseHttpsRedirection();
+            _ = app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            _ = app.UseAuthentication();
 
 
-            app.MapControllers();
+            _ = app.MapControllers();
 
             app.Run();
         }

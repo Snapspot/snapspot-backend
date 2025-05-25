@@ -11,11 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Snapspot.Application\Snapspot.Application.csproj" />
+    <ProjectReference Include="..\Snapspot.Infrastructure\Snapspot.Infrastructure.csproj" />
+    <ProjectReference Include="..\Snapspot.Shared\Snapspot.Shared.csproj" />
   </ItemGroup>
 
 </Project>
