@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Snapspot.Application.UseCases.Implementations.Auth;
+using Snapspot.Application.UseCases.Implementations.User;
 using Snapspot.Application.UseCases.Interfaces.Auth;
+using Snapspot.Application.UseCases.Interfaces.User;
 using Snapspot.Application.Validators.Auth;
 using System;
 using System.Collections.Generic;
@@ -16,6 +18,7 @@ namespace Snapspot.Application.Extensions
         public static IServiceCollection AddUseCases(this IServiceCollection services)
         {
             _ = services.AddScoped<IAuthenticationUseCase, AuthenticationUseCase>();
+            _ = services.AddScoped<IUserUseCase, UserUseCase>();
 
             return services;
         }

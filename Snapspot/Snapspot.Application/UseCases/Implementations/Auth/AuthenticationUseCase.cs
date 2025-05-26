@@ -86,7 +86,7 @@ namespace Snapspot.Application.UseCases.Implementations.Auth
             }
 
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
-            var user = new User
+            var user = new Domain.Entities.User
             {
                 Id = Guid.NewGuid(),
                 Email = request.Email,
