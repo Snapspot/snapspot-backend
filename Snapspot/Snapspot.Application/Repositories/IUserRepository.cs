@@ -11,5 +11,6 @@ namespace Snapspot.Application.Repositories
     {
         Task<bool> ExistsByEmailAsync(string email);
         Task<User?> LoginAsync(string email, string password);
+        Task<User?> GetByUserIdAsync(Guid userId);
     }
 }

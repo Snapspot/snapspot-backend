@@ -36,5 +36,14 @@ namespace Snapspot.WebAPI.Controllers
             if (response.Success) return Ok(response);
             return Unauthorized(response);
         }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken(TokenRequest request)
+        {
+            var response = await _authUseCase.GetNewAccessToken(request);
+
+            if (response.Success) return Ok(response);
+            return BadRequest(response);
+        }
     }
 }

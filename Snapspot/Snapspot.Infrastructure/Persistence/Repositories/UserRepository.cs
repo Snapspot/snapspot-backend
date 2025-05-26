@@ -21,9 +21,14 @@ namespace Snapspot.Infrastructure.Persistence.Repositories
             return await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email) != null;
         }
 
+        public async Task<User?> GetByUserIdAsync(Guid userId)
+        {
+            return await _context.Users.AsNoTracking().Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == userId && !x.IsDeleted);
+        }
+
         public async Task<User?> LoginAsync(string email, string password)
         {
-            var user = await _context.Users.Include(x => x.Role).AsNoTracking().FirstOrDefaultAsync(x => x.Email == email);
+            var user = await _context.Users.Include(x => x.Role).AsNoTracking().FirstOrDefaultAsync(x => x.Email == email && !x.IsDeleted);
             var isSamePassword = BCrypt.Net.BCrypt.Verify(password, user?.Password);
             if (user == null || !isSamePassword) return null;
             return user;
