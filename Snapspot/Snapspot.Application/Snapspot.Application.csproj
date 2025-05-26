@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="UseCases\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Snapspot.Domain\Snapspot.Domain.csproj" />
     <ProjectReference Include="..\Snapspot.Shared\Snapspot.Shared.csproj" />
   </ItemGroup>

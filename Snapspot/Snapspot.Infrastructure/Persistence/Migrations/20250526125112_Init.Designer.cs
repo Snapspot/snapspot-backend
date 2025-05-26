@@ -12,7 +12,7 @@ using Snapspot.Infrastructure.Persistence.DBContext;
 namespace Snapspot.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250525132841_Init")]
+    [Migration("20250526125112_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -24,6 +24,40 @@ namespace Snapspot.Infrastructure.Persistence.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Snapspot.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshToken", (string)null);
+                });
 
             modelBuilder.Entity("Snapspot.Domain.Entities.Role", b =>
                 {
@@ -50,32 +84,32 @@ namespace Snapspot.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Role", (string)null);
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("beb0807d-671c-4b55-b6da-5cb58a0a0502"),
-                            CreatedAt = new DateTime(2025, 5, 25, 13, 28, 41, 305, DateTimeKind.Utc).AddTicks(7800),
+                            Id = new Guid("bb9c1087-3bad-4cf5-8d67-e5c26816f538"),
+                            CreatedAt = new DateTime(2025, 5, 26, 12, 51, 12, 633, DateTimeKind.Utc).AddTicks(2178),
                             IsDeleted = false,
                             Name = "Admin",
-                            UpdatedAt = new DateTime(2025, 5, 25, 13, 28, 41, 305, DateTimeKind.Utc).AddTicks(7802)
+                            UpdatedAt = new DateTime(2025, 5, 26, 12, 51, 12, 633, DateTimeKind.Utc).AddTicks(2179)
                         },
                         new
                         {
-                            Id = new Guid("f4eb024b-861a-42da-928d-844543199be5"),
-                            CreatedAt = new DateTime(2025, 5, 25, 13, 28, 41, 305, DateTimeKind.Utc).AddTicks(7805),
+                            Id = new Guid("a9fdf3b5-81bf-4e09-833b-2e1bd64d5802"),
+                            CreatedAt = new DateTime(2025, 5, 26, 12, 51, 12, 633, DateTimeKind.Utc).AddTicks(2183),
                             IsDeleted = false,
                             Name = "ThirdParty",
-                            UpdatedAt = new DateTime(2025, 5, 25, 13, 28, 41, 305, DateTimeKind.Utc).AddTicks(7805)
+                            UpdatedAt = new DateTime(2025, 5, 26, 12, 51, 12, 633, DateTimeKind.Utc).AddTicks(2183)
                         },
                         new
                         {
-                            Id = new Guid("f71c97dd-b3f1-46b1-a8ee-528f23b9c681"),
-                            CreatedAt = new DateTime(2025, 5, 25, 13, 28, 41, 305, DateTimeKind.Utc).AddTicks(7807),
+                            Id = new Guid("ec88e69d-1cdd-40eb-bc86-6b64fa181f17"),
+                            CreatedAt = new DateTime(2025, 5, 26, 12, 51, 12, 633, DateTimeKind.Utc).AddTicks(2186),
                             IsDeleted = false,
                             Name = "User",
-                            UpdatedAt = new DateTime(2025, 5, 25, 13, 28, 41, 305, DateTimeKind.Utc).AddTicks(7807)
+                            UpdatedAt = new DateTime(2025, 5, 26, 12, 51, 12, 633, DateTimeKind.Utc).AddTicks(2186)
                         });
                 });
 
@@ -112,8 +146,8 @@ namespace Snapspot.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -133,7 +167,18 @@ namespace Snapspot.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("User", (string)null);
+                });
+
+            modelBuilder.Entity("Snapspot.Domain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("Snapspot.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Snapspot.Domain.Entities.User", b =>

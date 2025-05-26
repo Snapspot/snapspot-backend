@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Snapspot.Application.Models.Requests.Auth;
+using Snapspot.Application.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,12 +11,13 @@ namespace Snapspot.Application.Validators.Auth
 {
     public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     {
-        public RegisterRequestValidator()
+        public RegisterRequestValidator(IUserRepository userRepository)
         {
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required.")
                 .EmailAddress().WithMessage("Invalid email format.")
-                .Length(0, 255).WithMessage("Email must be less than 50 characters.");
+                .Length(0, 50).WithMessage("Email must be less than 50 characters.")
+                .MustAsync(async (userName, cancellation) => !await userRepository.ExistsByEmailAsync(userName));
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password is required.")

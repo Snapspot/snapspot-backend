@@ -9,6 +9,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -24,6 +25,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
             {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Role>().ToTable("Role");
             modelBuilder.Entity<Role>(entity =>
             {
                 entity.HasKey(r => r.Id);
@@ -43,6 +45,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                       .HasColumnType("datetime");
             });
 
+            modelBuilder.Entity<User>().ToTable("User");
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(u => u.Id);
@@ -60,7 +63,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
 
                 entity.Property(u => u.Password)
                       .IsRequired()
-                      .HasMaxLength(50);
+                      .HasMaxLength(60);
 
                 entity.Property(u => u.Dob)
                       .HasColumnType("date");
@@ -86,6 +89,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
+            modelBuilder.Entity<RefreshToken>().ToTable("RefreshToken");
             modelBuilder.Entity<RefreshToken>(entity =>
             {
                 entity.HasKey(rt => rt.Id);
