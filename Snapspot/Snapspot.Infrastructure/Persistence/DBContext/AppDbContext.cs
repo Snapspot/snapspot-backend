@@ -20,7 +20,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
             }
         }
 
-            protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
             base.OnModelCreating(modelBuilder);
 
@@ -84,6 +84,31 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                       .WithMany(r => r.Users)
                       .HasForeignKey(u => u.RoleId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(rt => rt.Id);
+
+                entity.Property(rt => rt.Token)
+                      .IsRequired();
+
+                entity.Property(rt => rt.ExpiryDate)
+                      .HasColumnType("datetime");
+
+                entity.Property(rt => rt.CreatedAt)
+                      .HasColumnType("datetime");
+
+                entity.Property(rt => rt.UpdatedAt)
+                      .HasColumnType("datetime");
+
+                entity.Property(rt => rt.IsDeleted)
+                      .HasDefaultValue(false);
+
+                entity.HasOne(rt => rt.User)
+                      .WithMany()
+                      .HasForeignKey(rt => rt.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Role>().HasData(
