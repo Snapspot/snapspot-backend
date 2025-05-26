@@ -1,4 +1,5 @@
 
+using Snapspot.Application.Extensions;
 using Snapspot.Infrastructure.Extensions;
 using Snapspot.WebAPI.Extensions;
 using Snapspot.WebAPI.Middlewares;
@@ -12,6 +13,7 @@ namespace Snapspot.WebAPI
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            _ = builder.Services.AddApplication();
             _ = builder.Services.AddInfrastructure(builder.Configuration);
             _ = builder.Services.AddWebAPI(builder.Configuration);
 
