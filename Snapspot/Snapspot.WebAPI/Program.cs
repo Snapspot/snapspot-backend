@@ -1,6 +1,9 @@
-
 using Snapspot.Application.Extensions;
+using Snapspot.Application.Repositories;
+using Snapspot.Application.Services;
 using Snapspot.Infrastructure.Extensions;
+using Snapspot.Infrastructure.Repositories;
+using Snapspot.Infrastructure.Services;
 using Snapspot.WebAPI.Extensions;
 using Snapspot.WebAPI.Middlewares;
 
@@ -22,7 +25,10 @@ namespace Snapspot.WebAPI
             _ = builder.Services.AddEndpointsApiExplorer();
             _ = builder.Services.AddSwaggerGen();
 
-                var app = builder.Build();
+            builder.Services.AddScoped<IAgencyRepository, AgencyRepository>();
+            builder.Services.AddScoped<IAgencyService, AgencyService>();
+
+            var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -36,7 +42,6 @@ namespace Snapspot.WebAPI
             _ = app.UseHttpsRedirection();
 
             _ = app.UseAuthentication();
-
 
             _ = app.MapControllers();
 

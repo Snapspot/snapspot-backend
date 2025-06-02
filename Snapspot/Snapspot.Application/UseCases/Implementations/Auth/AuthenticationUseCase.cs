@@ -74,7 +74,7 @@ namespace Snapspot.Application.UseCases.Implementations.Auth
         {
             await _registerRequestValidator.ValidateAndThrowAsync(request);
 
-            var role = (await _roleRepository.FindAsync(x => x.Name == RoleEnum.User.ToString(), asNoTracking: true)).FirstOrDefault();
+            var role = (await _roleRepository.FindAsync(x => x.Name == RoleEnum.Admin.ToString(), asNoTracking: true)).FirstOrDefault();
             if (role == null)
             {
                 return new ApiResponse<string>
@@ -94,7 +94,7 @@ namespace Snapspot.Application.UseCases.Implementations.Auth
                 Password = hashedPassword,
                 PhoneNumber = request.PhoneNumber,
                 Dob = request.Dob,
-                AvartaUrl = "https://th.bing.com/th/id/OIP.a9qb_VLfFjvlrDfc-iNLpgHaHa?rs=1&pid=ImgDetMain",
+                AvatarUrl = "https://th.bing.com/th/id/OIP.a9qb_VLfFjvlrDfc-iNLpgHaHa?rs=1&pid=ImgDetMain",
                 RoleId = role.Id,
             };
 

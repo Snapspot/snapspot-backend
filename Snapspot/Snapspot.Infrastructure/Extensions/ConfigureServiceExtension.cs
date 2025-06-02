@@ -18,6 +18,11 @@ namespace Snapspot.Infrastructure.Extensions
             _ = services.AddScoped(typeof(IGenericRepository<,>), typeof(GenericRepository<,>));
             _ = services.AddScoped<IUserRepository, UserRepository>();
             _ = services.AddScoped<IJwtService, JwtService>();
+            _ = services.AddScoped<IUserService, UserService>();
+
+            // Register Booking related services
+            _ = services.AddScoped<IBookingRepository, BookingRepository>();
+            _ = services.AddScoped<IBookingService, BookingService>();
 
             return services;
         }

@@ -22,7 +22,7 @@ namespace Snapspot.WebAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> GetAll([FromQuery] PagingRequest request)
         {
             var response = await _userUseCase.GetAllAsync(request);

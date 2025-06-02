@@ -1,30 +1,28 @@
-﻿using Snapspot.Domain.Base;
+using Snapspot.Domain.Base;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Snapspot.Domain.Entities
 {
-    public class User : BaseEntity<Guid>
+    public class Agency : BaseEntity<Guid>
     {
-        public string Email { get; set; }
+        public string Name { get; set; }
+        public string Address { get; set; }
         public string Fullname { get; set; }
-        public string Password { get; set; }
-        public DateTime Dob { get; set; }
         public string PhoneNumber { get; set; }
         public string AvatarUrl { get; set; }
-        public Guid RoleId { get; set; }
-        public virtual Role Role { get; set; }
         public float Rating { get; set; }
-        public bool IsApproved { get; set; }
+        public Guid CompanyId { get; set; }
         public virtual Company Company { get; set; }
+        public Guid SpotId { get; set; }
+        public virtual Spot Spot { get; set; }
         public virtual ICollection<Comment> Comments { get; set; }
+        public virtual ICollection<AgencyService> Services { get; set; }
 
-        public User()
+        public Agency()
         {
             Comments = new HashSet<Comment>();
+            Services = new HashSet<AgencyService>();
         }
     }
-}
+} 
