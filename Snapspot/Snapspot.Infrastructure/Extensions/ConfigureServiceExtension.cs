@@ -2,6 +2,7 @@
 using Snapspot.Application.Repositories;
 using Snapspot.Application.Services;
 using Snapspot.Infrastructure.Persistence.Repositories;
+using Snapspot.Infrastructure.Repositories;
 using Snapspot.Infrastructure.Services;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,14 @@ namespace Snapspot.Infrastructure.Extensions
             // Register Booking related services
             _ = services.AddScoped<IBookingRepository, BookingRepository>();
             _ = services.AddScoped<IBookingService, BookingService>();
+
+            // Register Company related services
+            _ = services.AddScoped<ICompanyRepository, CompanyRepository>();
+            _ = services.AddScoped<ICompanyService, CompanyService>();
+
+            // Register Spot related services
+            _ = services.AddScoped<ISpotRepository, SpotRepository>();
+            _ = services.AddScoped<ISpotService, SpotService>();
 
             return services;
         }
