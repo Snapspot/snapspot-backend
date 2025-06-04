@@ -2,10 +2,13 @@ using Snapspot.Application.Extensions;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.Services;
 using Snapspot.Infrastructure.Extensions;
+using Snapspot.Infrastructure.Persistence.DBContext;
+using Snapspot.Infrastructure.Persistence.Seed;
 using Snapspot.Infrastructure.Repositories;
 using Snapspot.Infrastructure.Services;
 using Snapspot.WebAPI.Extensions;
 using Snapspot.WebAPI.Middlewares;
+using Microsoft.EntityFrameworkCore;
 
 namespace Snapspot.WebAPI
 {
@@ -30,6 +33,18 @@ namespace Snapspot.WebAPI
 
             var app = builder.Build();
 
+            // Apply migrations and seed data
+            using (var scope = app.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                
+                // Apply any pending migrations
+                context.Database.Migrate();
+                
+                // Seed data
+                UserRoleSeeder.SeedData(context);
+            }
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -42,6 +57,7 @@ namespace Snapspot.WebAPI
             _ = app.UseHttpsRedirection();
 
             _ = app.UseAuthentication();
+            _ = app.UseAuthorization();
 
             _ = app.MapControllers();
 

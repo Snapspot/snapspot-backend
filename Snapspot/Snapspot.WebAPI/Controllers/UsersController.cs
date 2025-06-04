@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Snapspot.Application.Models.Users;
 using Snapspot.Application.Services;
@@ -8,6 +10,7 @@ namespace Snapspot.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -18,6 +21,7 @@ namespace Snapspot.WebAPI.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAllAsync();
@@ -25,6 +29,7 @@ namespace Snapspot.WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,User,ThirdParty")]
         public async Task<IActionResult> GetById(Guid id)
         {
             var user = await _userService.GetByIdAsync(id);
@@ -35,6 +40,7 @@ namespace Snapspot.WebAPI.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody] CreateUserDto createUserDto)
         {
             try
@@ -49,6 +55,7 @@ namespace Snapspot.WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,User,ThirdParty")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserDto updateUserDto)
         {
             try
