@@ -26,7 +26,7 @@ namespace Snapspot.WebAPI
             _ = builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped<IAgencyRepository, AgencyRepository>();
-            builder.Services.AddScoped<IAgencyService, AgencyService>();
+            builder.Services.AddScoped<IAgencyManagementService, AgencyManagementService>();
 
             var app = builder.Build();
 

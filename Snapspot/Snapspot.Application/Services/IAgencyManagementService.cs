@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Snapspot.Application.Services
 {
-    public interface IAgencyService
+    public interface IAgencyManagementService
     {
         Task<AgencyDto> GetByIdAsync(Guid id);
         Task<IEnumerable<AgencyDto>> GetAllAsync();

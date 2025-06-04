@@ -13,11 +13,13 @@ namespace Snapspot.WebAPI.Controllers
     [Route("api/[controller]")]
     public class AgenciesController : ControllerBase
     {
-        private readonly IAgencyService _agencyService;
+        private readonly IAgencyManagementService _agencyService;
+        private readonly IAgencyServiceService _agencyServiceService;
 
-        public AgenciesController(IAgencyService agencyService)
+        public AgenciesController(IAgencyManagementService agencyService, IAgencyServiceService agencyServiceService)
         {
             _agencyService = agencyService;
+            _agencyServiceService = agencyServiceService;
         }
 
         [HttpGet]
@@ -94,6 +96,52 @@ namespace Snapspot.WebAPI.Controllers
                 return NotFound();
 
             return NoContent();
+        }
+
+        [HttpPost("{id}/services/{serviceId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Roles = "Admin,ThirdParty")]
+        public async Task<ActionResult> AddService(Guid id, Guid serviceId)
+        {
+            try
+            {
+                await _agencyServiceService.AddToAgencyAsync(serviceId, id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("{id}/services/{serviceId}")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Roles = "Admin,ThirdParty")]
+        public async Task<ActionResult> RemoveService(Guid id, Guid serviceId)
+        {
+            try
+            {
+                await _agencyServiceService.RemoveFromAgencyAsync(serviceId, id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("{id}/services")]
+        public async Task<ActionResult> GetServices(Guid id)
+        {
+            try
+            {
+                var services = await _agencyServiceService.GetByAgencyIdAsync(id);
+                return Ok(services);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 } 

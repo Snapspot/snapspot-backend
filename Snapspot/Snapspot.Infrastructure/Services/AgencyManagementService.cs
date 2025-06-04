@@ -12,12 +12,12 @@ using System.Threading.Tasks;
 
 namespace Snapspot.Infrastructure.Services
 {
-    public class AgencyService : IAgencyService
+    public class AgencyManagementService : IAgencyManagementService
     {
         private readonly IAgencyRepository _agencyRepository;
         private readonly AppDbContext _context;
 
-        public AgencyService(IAgencyRepository agencyRepository, AppDbContext context)
+        public AgencyManagementService(IAgencyRepository agencyRepository, AppDbContext context)
         {
             _agencyRepository = agencyRepository;
             _context = context;

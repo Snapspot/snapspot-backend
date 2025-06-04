@@ -37,6 +37,17 @@ namespace Snapspot.Infrastructure.Extensions
             _ = services.AddScoped<IProvinceRepository, ProvinceRepository>();
             _ = services.AddScoped<IProvinceService, ProvinceService>();
 
+            // Register District related services
+            _ = services.AddScoped<IDistrictRepository, DistrictRepository>();
+            _ = services.AddScoped<IDistrictService, DistrictService>();
+
+            // Register Agency related services
+            _ = services.AddScoped<IAgencyManagementService, AgencyManagementService>();
+
+            // Register AgencyService related services
+            _ = services.AddScoped<IAgencyServiceRepository, AgencyServiceRepository>();
+            _ = services.AddScoped<IAgencyServiceService, AgencyServiceService>();
+
             return services;
         }
     }
