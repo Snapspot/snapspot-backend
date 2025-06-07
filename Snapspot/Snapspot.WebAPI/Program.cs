@@ -36,13 +36,28 @@ namespace Snapspot.WebAPI
             // Apply migrations and seed data
             using (var scope = app.Services.CreateScope())
             {
-                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                
-                // Apply any pending migrations
-                context.Database.Migrate();
-                
-                // Seed data
-                UserRoleSeeder.SeedData(context);
+                try
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                    
+                    // Ensure database is created
+                    context.Database.EnsureCreated();
+                    
+                    // Apply any pending migrations
+                    if (context.Database.GetPendingMigrations().Any())
+                    {
+                        context.Database.Migrate();
+                    }
+                    
+                    // Seed data
+                    UserRoleSeeder.SeedData(context);
+                }
+                catch (Exception ex)
+                {
+                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                    logger.LogError(ex, "An error occurred while migrating or seeding the database.");
+                    throw;
+                }
             }
 
             // Configure the HTTP request pipeline.
