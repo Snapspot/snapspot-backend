@@ -8,6 +8,8 @@ namespace Snapspot.Domain.Entities
     {
         public string Name { get; set; }
         public string Description { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
         public bool IsDeleted { get; set; }
         public Guid DistrictId { get; set; }
         public virtual District District { get; set; }

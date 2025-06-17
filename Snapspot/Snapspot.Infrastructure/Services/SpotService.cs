@@ -3,6 +3,8 @@ using Snapspot.Application.Models.Spots;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.Services;
 using Snapspot.Domain.Entities;
+using Snapspot.Infrastructure.Persistence.DBContext;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +15,12 @@ namespace Snapspot.Infrastructure.Services
     public class SpotService : ISpotService
     {
         private readonly ISpotRepository _spotRepository;
+        private readonly AppDbContext _context;
 
-        public SpotService(ISpotRepository spotRepository)
+        public SpotService(ISpotRepository spotRepository, AppDbContext context)
         {
             _spotRepository = spotRepository;
+            _context = context;
         }
 
         public async Task<SpotDto> GetByIdAsync(Guid id)
@@ -39,37 +43,72 @@ namespace Snapspot.Infrastructure.Services
 
         public async Task<SpotDto> CreateAsync(CreateSpotDto createSpotDto)
         {
-            var spot = new Spot
+            try
             {
-                Name = createSpotDto.Name,
-                Description = createSpotDto.Description,
-                DistrictId = createSpotDto.DistrictId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsDeleted = false
-            };
+                // Validate District exists
+                var districtExists = await _context.Districts.AnyAsync(d => d.Id == createSpotDto.DistrictId && !d.IsDeleted);
+                if (!districtExists)
+                {
+                    throw new Exception($"District with ID '{createSpotDto.DistrictId}' not found");
+                }
 
-            await _spotRepository.AddAsync(spot);
-            await _spotRepository.SaveChangesAsync();
+                var spot = new Spot
+                {
+                    Name = createSpotDto.Name,
+                    Description = createSpotDto.Description,
+                    Latitude = createSpotDto.Latitude,
+                    Longitude = createSpotDto.Longitude,
+                    DistrictId = createSpotDto.DistrictId,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    IsDeleted = false
+                };
 
-            return MapToDto(spot);
+                await _spotRepository.AddAsync(spot);
+                await _spotRepository.SaveChangesAsync();
+
+                return MapToDto(spot);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error creating spot: {ex.Message}", ex);
+            }
         }
 
         public async Task<SpotDto> UpdateAsync(Guid id, UpdateSpotDto updateSpotDto)
         {
-            var spot = await _spotRepository.GetByIdAsync(id);
-            if (spot == null)
-                throw new Exception("Spot not found");
+            try
+            {
+                var spot = await _spotRepository.GetByIdAsync(id);
+                if (spot == null)
+                    throw new Exception("Spot not found");
 
-            spot.Name = updateSpotDto.Name;
-            spot.Description = updateSpotDto.Description;
-            spot.DistrictId = updateSpotDto.DistrictId;
-            spot.UpdatedAt = DateTime.UtcNow;
+                // Validate District exists if it's being changed
+                if (spot.DistrictId != updateSpotDto.DistrictId)
+                {
+                    var districtExists = await _context.Districts.AnyAsync(d => d.Id == updateSpotDto.DistrictId && !d.IsDeleted);
+                    if (!districtExists)
+                    {
+                        throw new Exception($"District with ID '{updateSpotDto.DistrictId}' not found");
+                    }
+                }
 
-            await _spotRepository.UpdateAsync(spot);
-            await _spotRepository.SaveChangesAsync();
+                spot.Name = updateSpotDto.Name;
+                spot.Description = updateSpotDto.Description;
+                spot.Latitude = updateSpotDto.Latitude;
+                spot.Longitude = updateSpotDto.Longitude;
+                spot.DistrictId = updateSpotDto.DistrictId;
+                spot.UpdatedAt = DateTime.UtcNow;
 
-            return MapToDto(spot);
+                await _spotRepository.UpdateAsync(spot);
+                await _spotRepository.SaveChangesAsync();
+
+                return MapToDto(spot);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error updating spot: {ex.Message}", ex);
+            }
         }
 
         public async Task<bool> DeleteAsync(Guid id)
@@ -91,6 +130,8 @@ namespace Snapspot.Infrastructure.Services
                 Id = spot.Id,
                 Name = spot.Name,
                 Description = spot.Description,
+                Latitude = spot.Latitude,
+                Longitude = spot.Longitude,
                 DistrictId = spot.DistrictId,
                 DistrictName = spot.District?.Name,
                 ProvinceName = spot.District?.Province?.Name,

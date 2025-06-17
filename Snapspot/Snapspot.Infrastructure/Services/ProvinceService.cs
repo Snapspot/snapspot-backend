@@ -94,6 +94,8 @@ namespace Snapspot.Infrastructure.Services
                         Id = s.Id,
                         Name = s.Name,
                         Description = s.Description,
+                        Latitude = s.Latitude,
+                        Longitude = s.Longitude,
                         DistrictId = s.DistrictId,
                         DistrictName = d.Name,
                         ProvinceName = province.Name,

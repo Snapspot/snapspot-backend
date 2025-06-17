@@ -56,7 +56,11 @@ namespace Snapspot.WebAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { 
+                    message = ex.Message,
+                    details = ex.InnerException?.Message,
+                    stackTrace = ex.StackTrace
+                });
             }
         }
 
@@ -75,7 +79,11 @@ namespace Snapspot.WebAPI.Controllers
                 if (ex.Message == "Spot not found")
                     return NotFound();
 
-                return BadRequest(ex.Message);
+                return BadRequest(new { 
+                    message = ex.Message,
+                    details = ex.InnerException?.Message,
+                    stackTrace = ex.StackTrace
+                });
             }
         }
 

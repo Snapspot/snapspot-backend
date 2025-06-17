@@ -241,6 +241,31 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
             {
                 entity.HasKey(s => s.Id);
 
+                entity.Property(s => s.Name)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(s => s.Description)
+                      .IsRequired()
+                      .HasMaxLength(500);
+
+                entity.Property(s => s.Latitude)
+                      .HasColumnType("float")
+                      .IsRequired(false);
+
+                entity.Property(s => s.Longitude)
+                      .HasColumnType("float")
+                      .IsRequired(false);
+
+                entity.Property(s => s.IsDeleted)
+                      .HasDefaultValue(false);
+
+                entity.Property(s => s.CreatedAt)
+                      .HasColumnType("datetime");
+
+                entity.Property(s => s.UpdatedAt)
+                      .HasColumnType("datetime");
+
                 entity.HasOne(s => s.District)
                       .WithMany(d => d.Spots)
                       .HasForeignKey(s => s.DistrictId)
