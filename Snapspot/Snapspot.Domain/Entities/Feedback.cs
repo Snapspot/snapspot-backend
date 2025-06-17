@@ -3,7 +3,7 @@ using System;
 
 namespace Snapspot.Domain.Entities
 {
-    public class Comment : BaseEntity<Guid>
+    public class Feedback : BaseEntity<Guid>
     {
         public string Content { get; set; }
         public int Rating { get; set; }

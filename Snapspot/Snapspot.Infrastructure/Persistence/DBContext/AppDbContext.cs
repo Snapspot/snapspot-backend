@@ -13,7 +13,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
         public DbSet<SellerPackage> SellerPackages { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Agency> Agencies { get; set; }
-        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<Spot> Spots { get; set; }
         public DbSet<District> Districts { get; set; }
         public DbSet<Province> Provinces { get; set; }
@@ -94,7 +94,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                       .HasForeignKey<Company>(c => c.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasMany(u => u.Comments)
+                entity.HasMany(u => u.Feedbacks)
                       .WithOne(c => c.User)
                       .HasForeignKey(c => c.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
@@ -193,7 +193,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                       .HasForeignKey(a => a.SpotId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasMany(a => a.Comments)
+                entity.HasMany(a => a.Feedbacks)
                       .WithOne(c => c.Agency)
                       .HasForeignKey(c => c.AgencyId)
                       .OnDelete(DeleteBehavior.Restrict);
@@ -203,8 +203,8 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                       .UsingEntity(j => j.ToTable("AgencyServiceMapping"));
             });
 
-            modelBuilder.Entity<Comment>().ToTable("Comment");
-            modelBuilder.Entity<Comment>(entity =>
+            modelBuilder.Entity<Feedback>().ToTable("Feedback");
+            modelBuilder.Entity<Feedback>(entity =>
             {
                 entity.HasKey(c => c.Id);
 
@@ -214,7 +214,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(c => c.Agency)
-                      .WithMany(a => a.Comments)
+                      .WithMany(a => a.Feedbacks)
                       .HasForeignKey(c => c.AgencyId)
                       .OnDelete(DeleteBehavior.Restrict);
             });

@@ -20,11 +20,11 @@ namespace Snapspot.Domain.Entities
         public float Rating { get; set; }
         public bool IsApproved { get; set; }
         public virtual Company Company { get; set; }
-        public virtual ICollection<Comment> Comments { get; set; }
+        public virtual ICollection<Feedback> Feedbacks { get; set; }
 
         public User()
         {
-            Comments = new HashSet<Comment>();
+            Feedbacks = new HashSet<Feedback>();
         }
     }
 }

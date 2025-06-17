@@ -16,12 +16,12 @@ namespace Snapspot.Domain.Entities
         public virtual Company Company { get; set; }
         public Guid SpotId { get; set; }
         public virtual Spot Spot { get; set; }
-        public virtual ICollection<Comment> Comments { get; set; }
+        public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<AgencyService> Services { get; set; }
 
         public Agency()
         {
-            Comments = new HashSet<Comment>();
+            Feedbacks = new HashSet<Feedback>();
             Services = new HashSet<AgencyService>();
         }
     }
