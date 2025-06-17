@@ -13,10 +13,12 @@ namespace Snapspot.Domain.Entities
         public long SellingCount { get; set; }
         public bool IsDeleted { get; set; }
         public virtual ICollection<Company> Companies { get; set; }
+        public virtual ICollection<Transaction> Transactions { get; set; }
 
         public SellerPackage()
         {
             Companies = new HashSet<Company>();
+            Transactions = new HashSet<Transaction>();
         }
     }
 } 

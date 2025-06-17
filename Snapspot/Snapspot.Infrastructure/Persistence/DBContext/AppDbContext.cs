@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Snapspot.Application.Interfaces;
 using Snapspot.Domain.Base;
 using Snapspot.Domain.Entities;
 using Snapspot.Shared.Enums;
 
 namespace Snapspot.Infrastructure.Persistence.DBContext
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : DbContext, IAppDbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
@@ -19,6 +20,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
         public DbSet<Province> Provinces { get; set; }
         public DbSet<AgencyService> AgencyServices { get; set; }
         public DbSet<Booking> Bookings { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -340,6 +342,42 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                 entity.HasOne(b => b.Service)
                       .WithMany()
                       .HasForeignKey(b => b.ServiceId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<Transaction>().ToTable("Transaction");
+            modelBuilder.Entity<Transaction>(entity =>
+            {
+                entity.HasKey(t => t.Id);
+
+                entity.Property(t => t.TransactionCode)
+                      .IsRequired()
+                      .HasMaxLength(255);
+
+                entity.Property(t => t.Amount)
+                      .HasColumnType("decimal(10,2)");
+
+                entity.Property(t => t.PaymentType)
+                      .IsRequired()
+                      .HasMaxLength(20);
+
+                entity.Property(t => t.CreatedAt)
+                      .HasColumnType("datetime");
+
+                entity.Property(t => t.IsDeleted)
+                      .HasDefaultValue(false);
+
+                entity.Property(t => t.UpdatedAt)
+                      .HasColumnType("datetime");
+
+                entity.HasOne(t => t.SellerPackage)
+                      .WithMany(sp => sp.Transactions)
+                      .HasForeignKey(t => t.SellerPackageId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.Company)
+                      .WithMany(c => c.Transactions)
+                      .HasForeignKey(t => t.CompanyId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
