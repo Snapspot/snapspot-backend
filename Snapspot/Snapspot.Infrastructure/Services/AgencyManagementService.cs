@@ -15,12 +15,10 @@ namespace Snapspot.Infrastructure.Services
     public class AgencyManagementService : IAgencyManagementService
     {
         private readonly IAgencyRepository _agencyRepository;
-        private readonly AppDbContext _context;
 
-        public AgencyManagementService(IAgencyRepository agencyRepository, AppDbContext context)
+        public AgencyManagementService(IAgencyRepository agencyRepository)
         {
             _agencyRepository = agencyRepository;
-            _context = context;
         }
 
         public async Task<AgencyDto> GetByIdAsync(Guid id)
@@ -47,40 +45,45 @@ namespace Snapspot.Infrastructure.Services
             return agencies.Select(MapToDto);
         }
 
-        public async Task<AgencyDto> CreateAsync(CreateAgencyDto createAgencyDto)
+
+        public Task<AgencyDto> CreateAsync(CreateAgencyDto createAgencyDto)
         {
-            // Validate Company exists
-            var company = await _context.Companies
-                .FirstOrDefaultAsync(c => c.Id == createAgencyDto.CompanyId && !c.IsDeleted);
-            if (company == null)
-                throw new Exception($"Company with ID '{createAgencyDto.CompanyId}' not found");
-
-            // Validate Spot exists
-            var spot = await _context.Spots
-                .FirstOrDefaultAsync(s => s.Id == createAgencyDto.SpotId && !s.IsDeleted);
-            if (spot == null)
-                throw new Exception($"Spot with ID '{createAgencyDto.SpotId}' not found");
-
-            var agency = new Agency
-            {
-                Name = createAgencyDto.Name,
-                Address = createAgencyDto.Address,
-                Fullname = createAgencyDto.Fullname,
-                PhoneNumber = createAgencyDto.PhoneNumber,
-                AvatarUrl = createAgencyDto.AvatarUrl,
-                Rating = 0,
-                CompanyId = createAgencyDto.CompanyId,
-                SpotId = createAgencyDto.SpotId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsDeleted = false
-            };
-
-            await _agencyRepository.AddAsync(agency);
-            await _agencyRepository.SaveChangesAsync();
-
-            return MapToDto(agency);
+            throw new NotImplementedException();
         }
+        //public async Task<AgencyDto> CreateAsync(CreateAgencyDto createAgencyDto)
+        //{
+        //    // Validate Company exists
+        //    var company = await _context.Companies
+        //        .FirstOrDefaultAsync(c => c.Id == createAgencyDto.CompanyId && !c.IsDeleted);
+        //    if (company == null)
+        //        throw new Exception($"Company with ID '{createAgencyDto.CompanyId}' not found");
+
+        //    // Validate Spot exists
+        //    var spot = await _context.Spots
+        //        .FirstOrDefaultAsync(s => s.Id == createAgencyDto.SpotId && !s.IsDeleted);
+        //    if (spot == null)
+        //        throw new Exception($"Spot with ID '{createAgencyDto.SpotId}' not found");
+
+        //    var agency = new Agency
+        //    {
+        //        Name = createAgencyDto.Name,
+        //        Address = createAgencyDto.Address,
+        //        Fullname = createAgencyDto.Fullname,
+        //        PhoneNumber = createAgencyDto.PhoneNumber,
+        //        AvatarUrl = createAgencyDto.AvatarUrl,
+        //        Rating = 0,
+        //        CompanyId = createAgencyDto.CompanyId,
+        //        SpotId = createAgencyDto.SpotId,
+        //        CreatedAt = DateTime.UtcNow,
+        //        UpdatedAt = DateTime.UtcNow,
+        //        IsDeleted = false
+        //    };
+
+        //    await _agencyRepository.AddAsync(agency);
+        //    await _agencyRepository.SaveChangesAsync();
+
+        //    return MapToDto(agency);
+        //}
 
         public async Task<AgencyDto> UpdateAsync(Guid id, UpdateAgencyDto updateAgencyDto)
         {
@@ -89,13 +92,13 @@ namespace Snapspot.Infrastructure.Services
                 throw new Exception("Agency not found");
 
             // Validate Spot exists
-            if (agency.SpotId != updateAgencyDto.SpotId)
-            {
-                var spot = await _context.Spots
-                    .FirstOrDefaultAsync(s => s.Id == updateAgencyDto.SpotId && !s.IsDeleted);
-                if (spot == null)
-                    throw new Exception($"Spot with ID '{updateAgencyDto.SpotId}' not found");
-            }
+            //if (agency.SpotId != updateAgencyDto.SpotId)
+            //{
+            //    var spot = await _context.Spots
+            //        .FirstOrDefaultAsync(s => s.Id == updateAgencyDto.SpotId && !s.IsDeleted);
+            //    if (spot == null)
+            //        throw new Exception($"Spot with ID '{updateAgencyDto.SpotId}' not found");
+            //}
 
             agency.Name = updateAgencyDto.Name;
             agency.Address = updateAgencyDto.Address;
@@ -149,5 +152,6 @@ namespace Snapspot.Infrastructure.Services
                 IsDeleted = agency.IsDeleted
             };
         }
+
     }
 } 

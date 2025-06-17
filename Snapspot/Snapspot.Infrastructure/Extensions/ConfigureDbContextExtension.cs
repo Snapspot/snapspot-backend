@@ -15,8 +15,8 @@ namespace Snapspot.Infrastructure.Extensions
     {
         public static IServiceCollection AddCustomDbContext(this IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
+            var databaseOptions = configuration.GetSection(nameof(DatabaseOptions)).Get<DatabaseOptions>();
+            _ = services.AddDbContext<AppDbContext>(options => options.UseSqlServer(databaseOptions.ConnectionStrings));
 
             return services;
         }

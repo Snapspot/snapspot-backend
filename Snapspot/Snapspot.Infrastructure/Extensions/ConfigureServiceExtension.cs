@@ -44,6 +44,9 @@ namespace Snapspot.Infrastructure.Extensions
             // Register Agency related services
             _ = services.AddScoped<IAgencyManagementService, AgencyManagementService>();
 
+            //
+            _ = services.AddScoped<IAgencyRepository, AgencyRepository>();
+
             // Register AgencyService related services
             _ = services.AddScoped<IAgencyServiceRepository, AgencyServiceRepository>();
             _ = services.AddScoped<IAgencyServiceService, AgencyServiceService>();
