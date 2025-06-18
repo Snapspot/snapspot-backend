@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Snapspot.Application.Interfaces;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.Services;
+using Snapspot.Infrastructure.Persistence.DBContext;
 using Snapspot.Infrastructure.Persistence.Repositories;
 using Snapspot.Infrastructure.Repositories;
 using Snapspot.Infrastructure.Services;
@@ -50,6 +52,9 @@ namespace Snapspot.Infrastructure.Extensions
             // Register AgencyService related services
             _ = services.AddScoped<IAgencyServiceRepository, AgencyServiceRepository>();
             _ = services.AddScoped<IAgencyServiceService, AgencyServiceService>();
+
+            _ = services.AddScoped<ITransactionService, TransactionService>();
+            _ = services.AddScoped<IAppDbContext, AppDbContext>();
 
             return services;
         }
