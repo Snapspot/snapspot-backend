@@ -57,6 +57,9 @@ namespace Snapspot.Infrastructure.Extensions
             _ = services.AddScoped<ITransactionService, TransactionService>();
             _ = services.AddScoped<IAppDbContext, AppDbContext>();
 
+            _ = services.AddScoped<ISellerPackageRepository, SellerPackageRepository>();
+            _ = services.AddScoped<ISellerPackageService, SellerPackageService>();
+
             return services;
         }
     }
