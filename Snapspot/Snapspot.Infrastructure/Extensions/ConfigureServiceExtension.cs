@@ -2,6 +2,7 @@
 using Snapspot.Application.Interfaces;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.Services;
+using Snapspot.Application.Services.Implementations;
 using Snapspot.Infrastructure.Persistence.DBContext;
 using Snapspot.Infrastructure.Persistence.Repositories;
 using Snapspot.Infrastructure.Repositories;

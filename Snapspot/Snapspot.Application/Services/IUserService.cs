@@ -15,5 +15,7 @@ namespace Snapspot.Application.Services
         Task<UserDto> LoginAsync(UserLoginDto loginDto);
         Task<bool> ChangePasswordAsync(Guid id, string currentPassword, string newPassword);
         Task<UserDto> GetByEmailAsync(string email);
+        Task<IEnumerable<UserDto>> GetThirdPartyUsersAsync();
+        Task<IEnumerable<UserDto>> GetRegularUsersAsync();
     }
 } 

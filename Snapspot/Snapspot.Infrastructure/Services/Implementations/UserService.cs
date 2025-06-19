@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Snapspot.Application.Models.Users;
 using Snapspot.Domain.Entities;
+using Snapspot.Infrastructure.Persistence.DBContext;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +13,9 @@ namespace Snapspot.Application.Services.Implementations
 {
     public class UserService : IUserService
     {
-        private readonly DbContext _context;
+        private readonly AppDbContext _context;
 
-        public UserService(DbContext context)
+        public UserService(AppDbContext context)
         {
             _context = context;
         }
@@ -137,6 +138,28 @@ namespace Snapspot.Application.Services.Implementations
                 .FirstOrDefaultAsync(u => u.Email == email && !u.IsDeleted);
 
             return user != null ? MapToDto(user) : null;
+        }
+
+        public async Task<IEnumerable<UserDto>> GetThirdPartyUsersAsync()
+        {
+            var thirdPartyUsers = await _context.Set<User>()
+                .Include(u => u.Role)
+                .Where(u => !u.IsDeleted && u.Role.Name == "ThirdParty")
+                .OrderByDescending(u => u.CreatedAt)
+                .ToListAsync();
+
+            return thirdPartyUsers.Select(MapToDto);
+        }
+
+        public async Task<IEnumerable<UserDto>> GetRegularUsersAsync()
+        {
+            var regularUsers = await _context.Set<User>()
+                .Include(u => u.Role)
+                .Where(u => !u.IsDeleted && u.Role.Name == "User")
+                .OrderByDescending(u => u.CreatedAt)
+                .ToListAsync();
+
+            return regularUsers.Select(MapToDto);
         }
 
         private static string HashPassword(string password)

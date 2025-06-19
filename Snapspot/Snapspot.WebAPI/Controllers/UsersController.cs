@@ -28,6 +28,22 @@ namespace Snapspot.WebAPI.Controllers
             return Ok(users);
         }
 
+        [HttpGet("third-party")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetThirdPartyUsers()
+        {
+            var thirdPartyUsers = await _userService.GetThirdPartyUsersAsync();
+            return Ok(thirdPartyUsers);
+        }
+
+        [HttpGet("regular")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetRegularUsers()
+        {
+            var regularUsers = await _userService.GetRegularUsersAsync();
+            return Ok(regularUsers);
+        }
+
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin,User,ThirdParty")]
         public async Task<IActionResult> GetById(Guid id)
