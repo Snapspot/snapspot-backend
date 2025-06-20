@@ -24,9 +24,6 @@ namespace Snapspot.Infrastructure.Extensions
             _ = services.AddScoped<IJwtService, JwtService>();
             _ = services.AddScoped<IUserService, UserService>();
 
-            // Register Booking related services
-            _ = services.AddScoped<IBookingRepository, BookingRepository>();
-            _ = services.AddScoped<IBookingService, BookingService>();
 
             // Register Company related services
             _ = services.AddScoped<ICompanyRepository, CompanyRepository>();

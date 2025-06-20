@@ -18,7 +18,7 @@ namespace Snapspot.Application.Interfaces
         DbSet<District> Districts { get; set; }
         DbSet<Province> Provinces { get; set; }
         DbSet<AgencyService> AgencyServices { get; set; }
-        DbSet<Booking> Bookings { get; set; }
+       
         DbSet<Transaction> Transactions { get; set; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);

@@ -19,7 +19,6 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
         public DbSet<District> Districts { get; set; }
         public DbSet<Province> Provinces { get; set; }
         public DbSet<AgencyService> AgencyServices { get; set; }
-        public DbSet<Booking> Bookings { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
@@ -295,54 +294,6 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
 
                 entity.Property(s => s.UpdatedAt)
                       .HasColumnType("datetime");
-            });
-
-            modelBuilder.Entity<Booking>().ToTable("Booking");
-            modelBuilder.Entity<Booking>(entity =>
-            {
-                entity.HasKey(b => b.Id);
-
-                entity.Property(b => b.BookingDate)
-                      .HasColumnType("date");
-
-                entity.Property(b => b.StartTime)
-                      .HasColumnType("datetime");
-
-                entity.Property(b => b.EndTime)
-                      .HasColumnType("datetime");
-
-                entity.Property(b => b.TotalPrice)
-                      .HasColumnType("decimal(18,2)");
-
-                entity.Property(b => b.Notes)
-                      .HasMaxLength(500);
-
-                entity.Property(b => b.Status)
-                      .IsRequired();
-
-                entity.Property(b => b.IsDeleted)
-                      .HasDefaultValue(false);
-
-                entity.Property(b => b.CreatedAt)
-                      .HasColumnType("datetime");
-
-                entity.Property(b => b.UpdatedAt)
-                      .HasColumnType("datetime");
-
-                entity.HasOne(b => b.Customer)
-                      .WithMany()
-                      .HasForeignKey(b => b.CustomerId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(b => b.Agency)
-                      .WithMany()
-                      .HasForeignKey(b => b.AgencyId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(b => b.Service)
-                      .WithMany()
-                      .HasForeignKey(b => b.ServiceId)
-                      .OnDelete(DeleteBehavior.Restrict);
             });
 
             modelBuilder.Entity<Transaction>().ToTable("Transaction");
