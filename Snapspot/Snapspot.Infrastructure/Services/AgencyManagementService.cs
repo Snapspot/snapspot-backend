@@ -52,25 +52,25 @@ namespace Snapspot.Infrastructure.Services
         }
         //public async Task<AgencyDto> CreateAsync(CreateAgencyDto createAgencyDto)
         //{
-        //    // Validate Company exists
+        //     Validate Company exists
         //    var company = await _context.Companies
         //        .FirstOrDefaultAsync(c => c.Id == createAgencyDto.CompanyId && !c.IsDeleted);
         //    if (company == null)
         //        throw new Exception($"Company with ID '{createAgencyDto.CompanyId}' not found");
 
-        //    // Validate Spot exists
+        //     Validate Spot exists
         //    var spot = await _context.Spots
         //        .FirstOrDefaultAsync(s => s.Id == createAgencyDto.SpotId && !s.IsDeleted);
-        //    if (spot == null)
-        //        throw new Exception($"Spot with ID '{createAgencyDto.SpotId}' not found");
+        //   if (spot == null)
+        //      throw new Exception($"Spot with ID '{createAgencyDto.SpotId}' not found");
 
-        //    var agency = new Agency
+        //   var agency = new Agency
         //    {
         //        Name = createAgencyDto.Name,
-        //        Address = createAgencyDto.Address,
+        //       Address = createAgencyDto.Address,
         //        Fullname = createAgencyDto.Fullname,
-        //        PhoneNumber = createAgencyDto.PhoneNumber,
-        //        AvatarUrl = createAgencyDto.AvatarUrl,
+        //       PhoneNumber = createAgencyDto.PhoneNumber,
+        //       AvatarUrl = createAgencyDto.AvatarUrl,
         //        Rating = 0,
         //        CompanyId = createAgencyDto.CompanyId,
         //        SpotId = createAgencyDto.SpotId,
@@ -80,9 +80,9 @@ namespace Snapspot.Infrastructure.Services
         //    };
 
         //    await _agencyRepository.AddAsync(agency);
-        //    await _agencyRepository.SaveChangesAsync();
+        //   await _agencyRepository.SaveChangesAsync();
 
-        //    return MapToDto(agency);
+        //   return MapToDto(agency);
         //}
 
         public async Task<AgencyDto> UpdateAsync(Guid id, UpdateAgencyDto updateAgencyDto)

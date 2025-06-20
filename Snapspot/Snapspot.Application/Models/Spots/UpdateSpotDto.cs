@@ -21,5 +21,12 @@ namespace Snapspot.Application.Models.Spots
 
         [Required]
         public Guid DistrictId { get; set; }
+
+        [Required]
+        [StringLength(200)]
+        public string Address { get; set; }
+
+        [StringLength(300)]
+        public string ImageUrl { get; set; }
     }
 } 

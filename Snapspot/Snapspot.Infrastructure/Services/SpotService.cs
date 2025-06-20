@@ -59,6 +59,8 @@ namespace Snapspot.Infrastructure.Services
                     Latitude = createSpotDto.Latitude,
                     Longitude = createSpotDto.Longitude,
                     DistrictId = createSpotDto.DistrictId,
+                    Address = createSpotDto.Address,
+                    ImageUrl = createSpotDto.ImageUrl,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     IsDeleted = false
@@ -98,6 +100,8 @@ namespace Snapspot.Infrastructure.Services
                 spot.Latitude = updateSpotDto.Latitude;
                 spot.Longitude = updateSpotDto.Longitude;
                 spot.DistrictId = updateSpotDto.DistrictId;
+                spot.Address = updateSpotDto.Address;
+                spot.ImageUrl = updateSpotDto.ImageUrl;
                 spot.UpdatedAt = DateTime.UtcNow;
 
                 await _spotRepository.UpdateAsync(spot);
@@ -135,6 +139,8 @@ namespace Snapspot.Infrastructure.Services
                 DistrictId = spot.DistrictId,
                 DistrictName = spot.District?.Name,
                 ProvinceName = spot.District?.Province?.Name,
+                Address = spot.Address,
+                ImageUrl = spot.ImageUrl,
                 Agencies = spot.Agencies?.Select(a => new AgencyDto
                 {
                     Id = a.Id,
