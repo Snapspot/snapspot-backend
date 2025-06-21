@@ -1,9 +1,11 @@
 using Snapspot.Application.Models.Agencies;
+using Snapspot.Application.Models.AgencyServices;
 using Snapspot.Application.Models.Spots;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.Services;
 using Snapspot.Domain.Entities;
 using Snapspot.Infrastructure.Persistence.DBContext;
+using Snapspot.Shared.Common;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -29,10 +31,16 @@ namespace Snapspot.Infrastructure.Services
             return spot != null ? MapToDto(spot) : null;
         }
 
-        public async Task<IEnumerable<SpotDto>> GetAllAsync()
+        public async Task<ApiResponse<IEnumerable<SpotDto>>> GetAllAsync()
         {
             var spots = await _spotRepository.GetAllAsync();
-            return spots.Select(MapToDto);
+            var apiResponse = new ApiResponse<IEnumerable<SpotDto>>
+            {
+                Data = spots.Select(MapToDto),
+                Success = true,
+                Message = "Spots retrieved successfully"
+            };
+            return apiResponse;
         }
 
         public async Task<IEnumerable<SpotDto>> GetByDistrictIdAsync(Guid districtId)
@@ -154,6 +162,15 @@ namespace Snapspot.Infrastructure.Services
                     CompanyName = a.Company?.Name,
                     SpotId = a.SpotId,
                     SpotName = spot.Name,
+                    Services = a.Services?.Select(s => new AgencyServiceDto
+                    {
+                        Id = s.Id,
+                        Name = s.Name,
+                        Color = s.Color,
+                        IsDeleted = s.IsDeleted,
+                        CreatedAt = s.CreatedAt,
+                        UpdatedAt = s.UpdatedAt
+                    }).ToList(),
                     CreatedAt = a.CreatedAt,
                     UpdatedAt = a.UpdatedAt,
                     IsDeleted = a.IsDeleted

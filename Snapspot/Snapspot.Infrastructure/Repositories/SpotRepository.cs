@@ -23,6 +23,9 @@ namespace Snapspot.Infrastructure.Repositories
                 .Include(s => s.District)
                     .ThenInclude(d => d.Province)
                 .Include(s => s.Agencies)
+                    .ThenInclude(a => a.Company)
+                .Include(s => s.Agencies)
+                    .ThenInclude(a => a.Services)
                 .FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
         }
 
@@ -32,6 +35,9 @@ namespace Snapspot.Infrastructure.Repositories
                 .Include(s => s.District)
                     .ThenInclude(d => d.Province)
                 .Include(s => s.Agencies)
+                    .ThenInclude(a => a.Company)
+                .Include(s => s.Agencies)
+                    .ThenInclude(a => a.Services)
                 .Where(s => !s.IsDeleted)
                 .ToListAsync();
         }
@@ -42,6 +48,9 @@ namespace Snapspot.Infrastructure.Repositories
                 .Include(s => s.District)
                     .ThenInclude(d => d.Province)
                 .Include(s => s.Agencies)
+                    .ThenInclude(a => a.Company)
+                .Include(s => s.Agencies)
+                    .ThenInclude(a => a.Services)
                 .Where(s => s.DistrictId == districtId && !s.IsDeleted)
                 .ToListAsync();
         }
