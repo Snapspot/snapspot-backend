@@ -9,6 +9,8 @@ using Snapspot.Infrastructure.Services;
 using Snapspot.WebAPI.Extensions;
 using Snapspot.WebAPI.Middlewares;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 
 namespace Snapspot.WebAPI
 {
@@ -24,6 +26,10 @@ namespace Snapspot.WebAPI
             _ = builder.Services.AddWebAPI(builder.Configuration);
 
             _ = builder.Services.AddControllers();
+            // Defines the base route for this controller.
+            // [controller] will be replaced by the controller's name (without the 'Controller' suffix).
+            // Note: For RESTful best practices, URLs should be lowercase. Consider using explicit lowercase routes or enabling LowercaseUrls in configuration.
+            _ = builder.Services.AddRouting(options => options.LowercaseUrls = true);
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             _ = builder.Services.AddEndpointsApiExplorer();
             _ = builder.Services.AddSwaggerGen();
