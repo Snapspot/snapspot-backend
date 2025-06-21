@@ -1,8 +1,10 @@
 using Snapspot.Application.Models.Districts;
+using Snapspot.Application.Models.Responses.Auth;
 using Snapspot.Application.Models.Spots;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.Services;
 using Snapspot.Domain.Entities;
+using Snapspot.Shared.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,10 +29,16 @@ namespace Snapspot.Infrastructure.Services
             return district != null ? MapToDto(district) : null;
         }
 
-        public async Task<IEnumerable<DistrictDto>> GetAllAsync()
+        public async Task<ApiResponse<IEnumerable<DistrictDto>>> GetAllAsync()
         {
             var districts = await _districtRepository.GetAllAsync();
-            return districts.Select(MapToDto);
+            var apiResponse = new ApiResponse<IEnumerable<DistrictDto>>
+            {
+                Data = districts.Select(MapToDto),
+                Success = true,
+                Message = "Districts retrieved successfully"
+            };
+            return apiResponse;
         }
 
         public async Task<IEnumerable<DistrictDto>> GetByProvinceIdAsync(Guid provinceId)
@@ -70,6 +78,7 @@ namespace Snapspot.Infrastructure.Services
                 throw new Exception("Province not found");
 
             district.Name = updateDistrictDto.Name;
+            district.Description = updateDistrictDto.Description;
             district.ProvinceId = updateDistrictDto.ProvinceId;
             district.UpdatedAt = DateTime.UtcNow;
 
@@ -97,22 +106,9 @@ namespace Snapspot.Infrastructure.Services
             {
                 Id = district.Id,
                 Name = district.Name,
+                Description = district.Description,
                 ProvinceId = district.ProvinceId,
                 ProvinceName = district.Province?.Name,
-                Spots = district.Spots?.Select(s => new SpotDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Description = s.Description,
-                    Latitude = s.Latitude,
-                    Longitude = s.Longitude,
-                    DistrictId = s.DistrictId,
-                    DistrictName = district.Name,
-                    ProvinceName = district.Province?.Name,
-                    CreatedAt = s.CreatedAt,
-                    UpdatedAt = s.UpdatedAt,
-                    IsDeleted = s.IsDeleted
-                }).ToList(),
                 CreatedAt = district.CreatedAt,
                 UpdatedAt = district.UpdatedAt,
                 IsDeleted = district.IsDeleted

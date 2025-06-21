@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Snapspot.Infrastructure.Persistence.DBContext;
 
@@ -11,9 +12,11 @@ using Snapspot.Infrastructure.Persistence.DBContext;
 namespace Snapspot.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250621044828_RemoveSpotId1FromAgency")]
+    partial class RemoveSpotId1FromAgency
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -264,11 +267,16 @@ namespace Snapspot.Infrastructure.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("UserId1")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AgencyId");
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("UserId1");
 
                     b.ToTable("Feedback", (string)null);
                 });
@@ -675,10 +683,14 @@ namespace Snapspot.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Snapspot.Domain.Entities.User", "User")
-                        .WithMany("Feedbacks")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Snapspot.Domain.Entities.User", null)
+                        .WithMany("Feedbacks")
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Agency");
 

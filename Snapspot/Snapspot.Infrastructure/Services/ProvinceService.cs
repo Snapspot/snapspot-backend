@@ -4,6 +4,7 @@ using Snapspot.Application.Models.Spots;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.Services;
 using Snapspot.Domain.Entities;
+using Snapspot.Shared.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,10 +27,16 @@ namespace Snapspot.Infrastructure.Services
             return province != null ? MapToDto(province) : null;
         }
 
-        public async Task<IEnumerable<ProvinceDto>> GetAllAsync()
+        public async Task<ApiResponse<IEnumerable<ProvinceDto>>> GetAllAsync()
         {
             var provinces = await _provinceRepository.GetAllAsync();
-            return provinces.Select(MapToDto);
+            var apiResponse = new ApiResponse<IEnumerable<ProvinceDto>>
+            {
+                Data = provinces.Select(MapToDto),
+                Success = true,
+                Message = "Provinces retrieved successfully"
+            };
+            return apiResponse;
         }
 
         public async Task<ProvinceDto> CreateAsync(CreateProvinceDto createProvinceDto)
@@ -83,26 +90,14 @@ namespace Snapspot.Infrastructure.Services
             {
                 Id = province.Id,
                 Name = province.Name,
+                Description = province.Description,
                 Districts = province.Districts?.Select(d => new DistrictDto
                 {
                     Id = d.Id,
                     Name = d.Name,
+                    Description = d.Description,
                     ProvinceId = d.ProvinceId,
                     ProvinceName = province.Name,
-                    Spots = d.Spots?.Select(s => new SpotDto
-                    {
-                        Id = s.Id,
-                        Name = s.Name,
-                        Description = s.Description,
-                        Latitude = s.Latitude,
-                        Longitude = s.Longitude,
-                        DistrictId = s.DistrictId,
-                        DistrictName = d.Name,
-                        ProvinceName = province.Name,
-                        CreatedAt = s.CreatedAt,
-                        UpdatedAt = s.UpdatedAt,
-                        IsDeleted = s.IsDeleted
-                    }).ToList(),
                     CreatedAt = d.CreatedAt,
                     UpdatedAt = d.UpdatedAt,
                     IsDeleted = d.IsDeleted

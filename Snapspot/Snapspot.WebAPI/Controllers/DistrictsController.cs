@@ -21,7 +21,7 @@ namespace Snapspot.WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DistrictDto>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
             var districts = await _districtService.GetAllAsync();
             return Ok(districts);

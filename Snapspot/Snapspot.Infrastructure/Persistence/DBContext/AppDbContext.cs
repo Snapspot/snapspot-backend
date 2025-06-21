@@ -90,11 +90,6 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                       .HasForeignKey(u => u.RoleId)
                       .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(u => u.Company)
-                      .WithOne(c => c.User)
-                      .HasForeignKey<Company>(c => c.UserId)
-                      .OnDelete(DeleteBehavior.Restrict);
-
                 entity.HasMany(u => u.Feedbacks)
                       .WithOne(c => c.User)
                       .HasForeignKey(c => c.UserId)
@@ -169,7 +164,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                 entity.HasKey(c => c.Id);
 
                 entity.HasOne(c => c.User)
-                      .WithOne()
+                      .WithOne(u => u.Company)
                       .HasForeignKey<Company>(c => c.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
 
@@ -190,7 +185,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                       .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasOne(a => a.Spot)
-                      .WithMany()
+                      .WithMany(s => s.Agencies)
                       .HasForeignKey(a => a.SpotId)
                       .OnDelete(DeleteBehavior.Restrict);
 
@@ -210,7 +205,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                 entity.HasKey(c => c.Id);
 
                 entity.HasOne(c => c.User)
-                      .WithMany()
+                      .WithMany(u => u.Feedbacks)
                       .HasForeignKey(c => c.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
 

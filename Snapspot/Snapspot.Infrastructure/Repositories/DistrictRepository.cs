@@ -22,7 +22,6 @@ namespace Snapspot.Infrastructure.Repositories
         {
             return await _context.Set<District>()
                 .Include(d => d.Province)
-                .Include(d => d.Spots)
                 .FirstOrDefaultAsync(d => d.Id == id && !d.IsDeleted);
         }
 
@@ -30,7 +29,6 @@ namespace Snapspot.Infrastructure.Repositories
         {
             return await _context.Set<District>()
                 .Include(d => d.Province)
-                .Include(d => d.Spots)
                 .Where(d => !d.IsDeleted)
                 .ToListAsync();
         }
@@ -39,7 +37,6 @@ namespace Snapspot.Infrastructure.Repositories
         {
             return await _context.Set<District>()
                 .Include(d => d.Province)
-                .Include(d => d.Spots)
                 .Where(d => d.ProvinceId == provinceId && !d.IsDeleted)
                 .ToListAsync();
         }
