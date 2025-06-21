@@ -33,15 +33,17 @@ namespace Snapspot.WebAPI
 
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
+            //if (app.Environment.IsDevelopment())
+            //{
                 _ = app.UseSwagger();
                 _ = app.UseSwaggerUI();
-            }
+            //}
 
             _ = app.UseValidationExceptionMiddleware();
 
             _ = app.UseHttpsRedirection();
+
+            _ = app.UseCors("AllowFrontend");
 
             _ = app.UseAuthentication();
             _ = app.UseAuthorization();
