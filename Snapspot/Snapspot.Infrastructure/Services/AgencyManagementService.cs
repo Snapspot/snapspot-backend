@@ -147,6 +147,7 @@ namespace Snapspot.Infrastructure.Services
                     Name = s.Name,
                     Color = s.Color
                 }).ToList(),
+                FeedbackIds = agency.Feedbacks?.Select(f => f.Id).ToList(),
                 CreatedAt = agency.CreatedAt,
                 UpdatedAt = agency.UpdatedAt,
                 IsDeleted = agency.IsDeleted
