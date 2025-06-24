@@ -22,5 +22,6 @@ namespace Snapspot.Application.Models.Agencies
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
         public ICollection<Guid> FeedbackIds { get; set; }
+        public string Description { get; set; }
     }
 } 

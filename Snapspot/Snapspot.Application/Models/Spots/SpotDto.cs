@@ -14,7 +14,6 @@ namespace Snapspot.Application.Models.Spots
         public Guid DistrictId { get; set; }
         public string DistrictName { get; set; }
         public string ProvinceName { get; set; }
-        public ICollection<AgencyDto> Agencies { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }

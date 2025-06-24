@@ -18,6 +18,7 @@ namespace Snapspot.Domain.Entities
         public virtual Spot Spot { get; set; }
         public virtual ICollection<Feedback> Feedbacks { get; set; }
         public virtual ICollection<AgencyService> Services { get; set; }
+        public string Description { get; set; }
 
         public Agency()
         {

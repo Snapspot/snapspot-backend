@@ -149,32 +149,7 @@ namespace Snapspot.Infrastructure.Services
                 ProvinceName = spot.District?.Province?.Name,
                 Address = spot.Address,
                 ImageUrl = spot.ImageUrl,
-                Agencies = spot.Agencies?.Select(a => new AgencyDto
-                {
-                    Id = a.Id,
-                    Name = a.Name,
-                    Address = a.Address,
-                    Fullname = a.Fullname,
-                    PhoneNumber = a.PhoneNumber,
-                    AvatarUrl = a.AvatarUrl,
-                    Rating = a.Rating,
-                    CompanyId = a.CompanyId,
-                    CompanyName = a.Company?.Name,
-                    SpotId = a.SpotId,
-                    SpotName = spot.Name,
-                    Services = a.Services?.Select(s => new AgencyServiceDto
-                    {
-                        Id = s.Id,
-                        Name = s.Name,
-                        Color = s.Color,
-                        IsDeleted = s.IsDeleted,
-                        CreatedAt = s.CreatedAt,
-                        UpdatedAt = s.UpdatedAt
-                    }).ToList(),
-                    CreatedAt = a.CreatedAt,
-                    UpdatedAt = a.UpdatedAt,
-                    IsDeleted = a.IsDeleted
-                }).ToList(),
+               
                 CreatedAt = spot.CreatedAt,
                 UpdatedAt = spot.UpdatedAt,
                 IsDeleted = spot.IsDeleted
