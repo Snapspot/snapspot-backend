@@ -22,6 +22,12 @@ namespace Snapspot.Infrastructure.Repositories
             return await _context.Set<Company>()
                 .Include(c => c.User)
                 .Include(c => c.Agencies)
+                    .ThenInclude(a => a.Spot)
+                .Include(c => c.Agencies)
+                    .ThenInclude(a => a.Services)
+                .Include(c => c.Agencies)
+                    .ThenInclude(a => a.Feedbacks)
+                        .ThenInclude(f => f.User)
                 .Include(c => c.SellerPackages)
                 .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
         }
@@ -31,6 +37,12 @@ namespace Snapspot.Infrastructure.Repositories
             return await _context.Set<Company>()
                 .Include(c => c.User)
                 .Include(c => c.Agencies)
+                    .ThenInclude(a => a.Spot)
+                .Include(c => c.Agencies)
+                    .ThenInclude(a => a.Services)
+                .Include(c => c.Agencies)
+                    .ThenInclude(a => a.Feedbacks)
+                        .ThenInclude(f => f.User)
                 .Include(c => c.SellerPackages)
                 .Where(c => !c.IsDeleted)
                 .ToListAsync();
@@ -41,6 +53,12 @@ namespace Snapspot.Infrastructure.Repositories
             return await _context.Set<Company>()
                 .Include(c => c.User)
                 .Include(c => c.Agencies)
+                    .ThenInclude(a => a.Spot)
+                .Include(c => c.Agencies)
+                    .ThenInclude(a => a.Services)
+                .Include(c => c.Agencies)
+                    .ThenInclude(a => a.Feedbacks)
+                        .ThenInclude(f => f.User)
                 .Include(c => c.SellerPackages)
                 .FirstOrDefaultAsync(c => c.UserId == userId && !c.IsDeleted);
         }

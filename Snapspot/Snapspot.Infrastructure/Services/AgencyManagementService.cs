@@ -147,10 +147,23 @@ namespace Snapspot.Infrastructure.Services
                     Name = s.Name,
                     Color = s.Color
                 }).ToList(),
-                FeedbackIds = agency.Feedbacks?.Select(f => f.Id).ToList(),
+                Feedbacks = agency.Feedbacks?.Select(f => new FeedbackDto
+                {
+                    Id = f.Id,
+                    Content = f.Content,
+                    Rating = f.Rating,
+                    IsApproved = f.IsApproved,
+                    UserId = f.UserId,
+                    UserName = f.User?.Fullname,
+                    AgencyId = f.AgencyId,
+                    CreatedAt = f.CreatedAt,
+                    UpdatedAt = f.UpdatedAt,
+                    IsDeleted = f.IsDeleted
+                }).ToList(),
                 CreatedAt = agency.CreatedAt,
                 UpdatedAt = agency.UpdatedAt,
-                IsDeleted = agency.IsDeleted
+                IsDeleted = agency.IsDeleted,
+                Description = agency.Description
             };
         }
 

@@ -14,5 +14,6 @@ namespace Snapspot.Application.Services
         Task<AgencyDto> CreateAsync(CreateAgencyDto createAgencyDto);
         Task<AgencyDto> UpdateAsync(Guid id, UpdateAgencyDto updateAgencyDto);
         Task<bool> DeleteAsync(Guid id);
+        
     }
 } 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Snapspot.Application.Models.Agencies;
+using Snapspot.Application.Models.AgencyServices;
 using Snapspot.Application.Models.Companies;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.Services;
@@ -122,9 +123,29 @@ namespace Snapspot.Infrastructure.Services
                     CompanyName = company.Name,
                     SpotId = a.SpotId,
                     SpotName = a.Spot?.Name,
+                    Services = a.Services?.Select(s => new AgencyServiceDto
+                    {
+                        Id = s.Id,
+                        Name = s.Name,
+                        Color = s.Color
+                    }).ToList(),
+                    Feedbacks = a.Feedbacks?.Select(f => new FeedbackDto
+                    {
+                        Id = f.Id,
+                        Content = f.Content,
+                        Rating = f.Rating,
+                        IsApproved = f.IsApproved,
+                        UserId = f.UserId,
+                        UserName = f.User?.Fullname,
+                        AgencyId = f.AgencyId,
+                        CreatedAt = f.CreatedAt,
+                        UpdatedAt = f.UpdatedAt,
+                        IsDeleted = f.IsDeleted
+                    }).ToList(),
                     CreatedAt = a.CreatedAt,
                     UpdatedAt = a.UpdatedAt,
-                    IsDeleted = a.IsDeleted
+                    IsDeleted = a.IsDeleted,
+                    Description = a.Description
                 }).ToList(),
                 CreatedAt = company.CreatedAt,
                 UpdatedAt = company.UpdatedAt,

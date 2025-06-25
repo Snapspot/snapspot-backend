@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Snapspot.Application.Models.AgencyServices;
+using Snapspot.Shared.Common;
 
 namespace Snapspot.Application.Models.Agencies
 {
-    public class AgencyDto
+    public class AgencyWithPagedFeedbacksDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -18,10 +19,10 @@ namespace Snapspot.Application.Models.Agencies
         public Guid SpotId { get; set; }
         public string SpotName { get; set; }
         public ICollection<AgencyServiceDto> Services { get; set; }
+        public PagingResponse<FeedbackDto> Feedbacks { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
-        public ICollection<FeedbackDto> Feedbacks { get; set; }
         public string Description { get; set; }
     }
 } 

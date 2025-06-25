@@ -51,6 +51,10 @@ namespace Snapspot.Infrastructure.Extensions
             _ = services.AddScoped<IAgencyServiceRepository, AgencyServiceRepository>();
             _ = services.AddScoped<IAgencyServiceService, AgencyServiceService>();
 
+            // Register Feedback related services
+            _ = services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            _ = services.AddScoped<IFeedbackService, FeedbackService>();
+
             _ = services.AddScoped<ITransactionService, TransactionService>();
             _ = services.AddScoped<IAppDbContext, AppDbContext>();
 

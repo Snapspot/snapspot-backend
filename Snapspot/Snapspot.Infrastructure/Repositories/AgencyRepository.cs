@@ -25,6 +25,7 @@ namespace Snapspot.Infrastructure.Repositories
                 .Include(a => a.Spot)
                 .Include(a => a.Services)
                 .Include(a => a.Feedbacks)
+                    .ThenInclude(f => f.User)
                 .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
         }
 
@@ -35,6 +36,7 @@ namespace Snapspot.Infrastructure.Repositories
                 .Include(a => a.Spot)
                 .Include(a => a.Services)
                 .Include(a => a.Feedbacks)
+                    .ThenInclude(f => f.User)
                 .Where(a => !a.IsDeleted)
                 .ToListAsync();
         }
@@ -46,6 +48,7 @@ namespace Snapspot.Infrastructure.Repositories
                 .Include(a => a.Spot)
                 .Include(a => a.Services)
                 .Include(a => a.Feedbacks)
+                    .ThenInclude(f => f.User)
                 .Where(a => a.CompanyId == companyId && !a.IsDeleted)
                 .ToListAsync();
         }
@@ -57,6 +60,7 @@ namespace Snapspot.Infrastructure.Repositories
                 .Include(a => a.Spot)
                 .Include(a => a.Services)
                 .Include(a => a.Feedbacks)
+                    .ThenInclude(f => f.User)
                 .Where(a => a.SpotId == spotId && !a.IsDeleted)
                 .ToListAsync();
         }
