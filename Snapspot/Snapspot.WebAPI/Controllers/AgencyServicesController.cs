@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Snapspot.Application.Models.AgencyServices;
-using Snapspot.Application.Services;
+using Snapspot.Application.UseCases.Interfaces.AgencyService;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,35 +13,41 @@ namespace Snapspot.WebAPI.Controllers
     [Route("api/[controller]")]
     public class AgencyServicesController : ControllerBase
     {
-        private readonly IAgencyServiceService _agencyServiceService;
+        private readonly IAgencyServiceUseCase _agencyServiceUseCase;
 
-        public AgencyServicesController(IAgencyServiceService agencyServiceService)
+        public AgencyServicesController(IAgencyServiceUseCase agencyServiceUseCase)
         {
-            _agencyServiceService = agencyServiceService;
+            _agencyServiceUseCase = agencyServiceUseCase;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<AgencyServiceDto>>> GetAll()
         {
-            var services = await _agencyServiceService.GetAllAsync();
-            return Ok(services);
+            var result = await _agencyServiceUseCase.GetAllAsync();
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<AgencyServiceDto>> GetById(Guid id)
         {
-            var service = await _agencyServiceService.GetByIdAsync(id);
-            if (service == null)
-                return NotFound();
+            var result = await _agencyServiceUseCase.GetByIdAsync(id);
+            if (!result.Success)
+                return NotFound(result.Message);
 
-            return Ok(service);
+            return Ok(result.Data);
         }
 
         [HttpGet("agency/{agencyId}")]
         public async Task<ActionResult<IEnumerable<AgencyServiceDto>>> GetByAgencyId(Guid agencyId)
         {
-            var services = await _agencyServiceService.GetByAgencyIdAsync(agencyId);
-            return Ok(services);
+            var result = await _agencyServiceUseCase.GetByAgencyIdAsync(agencyId);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Data);
         }
 
         [HttpPost]
@@ -51,8 +57,11 @@ namespace Snapspot.WebAPI.Controllers
         {
             try
             {
-                var service = await _agencyServiceService.CreateAsync(createAgencyServiceDto);
-                return CreatedAtAction(nameof(GetById), new { id = service.Id }, service);
+                var result = await _agencyServiceUseCase.CreateAsync(createAgencyServiceDto);
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
+                return CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, result.Data);
             }
             catch (Exception ex)
             {
@@ -67,8 +76,11 @@ namespace Snapspot.WebAPI.Controllers
         {
             try
             {
-                var service = await _agencyServiceService.UpdateAsync(id, updateAgencyServiceDto);
-                return Ok(service);
+                var result = await _agencyServiceUseCase.UpdateAsync(id, updateAgencyServiceDto);
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
+                return Ok(result.Data);
             }
             catch (Exception ex)
             {
@@ -81,9 +93,9 @@ namespace Snapspot.WebAPI.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Delete(Guid id)
         {
-            var result = await _agencyServiceService.DeleteAsync(id);
-            if (!result)
-                return NotFound();
+            var result = await _agencyServiceUseCase.DeleteAsync(id);
+            if (!result.Success)
+                return NotFound(result.Message);
 
             return NoContent();
         }
@@ -95,7 +107,10 @@ namespace Snapspot.WebAPI.Controllers
         {
             try
             {
-                await _agencyServiceService.AddToAgencyAsync(id, agencyId);
+                var result = await _agencyServiceUseCase.AddToAgencyAsync(id, agencyId);
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
                 return NoContent();
             }
             catch (Exception ex)
@@ -111,7 +126,10 @@ namespace Snapspot.WebAPI.Controllers
         {
             try
             {
-                await _agencyServiceService.RemoveFromAgencyAsync(id, agencyId);
+                var result = await _agencyServiceUseCase.RemoveFromAgencyAsync(id, agencyId);
+                if (!result.Success)
+                    return BadRequest(result.Message);
+
                 return NoContent();
             }
             catch (Exception ex)

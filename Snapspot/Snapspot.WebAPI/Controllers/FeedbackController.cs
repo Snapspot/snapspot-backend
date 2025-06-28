@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Snapspot.Application.Models.Agencies;
-using Snapspot.Application.Services;
+using Snapspot.Application.UseCases.Interfaces.Feedback;
 using Snapspot.Shared.Common;
 using Snapspot.Shared.Constants;
 using System;
@@ -17,11 +17,11 @@ namespace Snapspot.WebAPI.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class FeedbackController : ControllerBase
     {
-        private readonly IFeedbackService _feedbackService;
+        private readonly IFeedbackUseCase _feedbackUseCase;
 
-        public FeedbackController(IFeedbackService feedbackService)
+        public FeedbackController(IFeedbackUseCase feedbackUseCase)
         {
-            _feedbackService = feedbackService;
+            _feedbackUseCase = feedbackUseCase;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Snapspot.WebAPI.Controllers
         /// </summary>
         [HttpGet]
         [Authorize(Roles = RoleConstants.Admin)]
-        public async Task<ActionResult<PagingResponse<FeedbackDto>>> GetAll(
+        public async Task<ActionResult<ApiResponse<PagingResponse<FeedbackDto>>>> GetAll(
             [FromQuery] int pageNumber = 1, 
             [FromQuery] int pageSize = 10)
         {
@@ -39,12 +39,17 @@ namespace Snapspot.WebAPI.Controllers
                 if (pageNumber < 1) pageNumber = 1;
                 if (pageSize < 1 || pageSize > 100) pageSize = 10;
 
-                var feedbacks = await _feedbackService.GetPagedAsync(pageNumber, pageSize);
-                return Ok(feedbacks);
+                var result = await _feedbackUseCase.GetPagedAsync(pageNumber, pageSize);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new ApiResponse<PagingResponse<FeedbackDto>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
             }
         }
 
@@ -52,19 +57,21 @@ namespace Snapspot.WebAPI.Controllers
         /// Lấy feedback theo ID
         /// </summary>
         [HttpGet("{id}")]
-        public async Task<ActionResult<FeedbackDto>> GetById(Guid id)
+        public async Task<ActionResult<ApiResponse<FeedbackDto>>> GetById(Guid id)
         {
             try
             {
-                var feedback = await _feedbackService.GetByIdAsync(id);
-                if (feedback == null)
-                    return NotFound();
-
-                return Ok(feedback);
+                var result = await _feedbackUseCase.GetByIdAsync(id);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new ApiResponse<FeedbackDto>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
             }
         }
 
@@ -72,7 +79,7 @@ namespace Snapspot.WebAPI.Controllers
         /// Lấy tất cả feedback của một đại lý với phân trang
         /// </summary>
         [HttpGet("agency/{agencyId}")]
-        public async Task<ActionResult<PagingResponse<FeedbackDto>>> GetByAgencyId(
+        public async Task<ActionResult<ApiResponse<PagingResponse<FeedbackDto>>>> GetByAgencyId(
             Guid agencyId,
             [FromQuery] int pageNumber = 1, 
             [FromQuery] int pageSize = 10)
@@ -83,12 +90,17 @@ namespace Snapspot.WebAPI.Controllers
                 if (pageNumber < 1) pageNumber = 1;
                 if (pageSize < 1 || pageSize > 100) pageSize = 10;
 
-                var feedbacks = await _feedbackService.GetByAgencyIdPagedAsync(agencyId, pageNumber, pageSize);
-                return Ok(feedbacks);
+                var result = await _feedbackUseCase.GetPagedByAgencyIdAsync(agencyId, pageNumber, pageSize);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new ApiResponse<PagingResponse<FeedbackDto>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
             }
         }
 
@@ -96,7 +108,7 @@ namespace Snapspot.WebAPI.Controllers
         /// Lấy tất cả feedback của một user với phân trang
         /// </summary>
         [HttpGet("user/{userId}")]
-        public async Task<ActionResult<PagingResponse<FeedbackDto>>> GetByUserId(
+        public async Task<ActionResult<ApiResponse<PagingResponse<FeedbackDto>>>> GetByUserId(
             Guid userId,
             [FromQuery] int pageNumber = 1, 
             [FromQuery] int pageSize = 10)
@@ -112,59 +124,17 @@ namespace Snapspot.WebAPI.Controllers
                 if (pageNumber < 1) pageNumber = 1;
                 if (pageSize < 1 || pageSize > 100) pageSize = 10;
 
-                var feedbacks = await _feedbackService.GetByUserIdPagedAsync(userId, pageNumber, pageSize);
-                return Ok(feedbacks);
+                var result = await _feedbackUseCase.GetPagedByUserIdAsync(userId, pageNumber, pageSize);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Lấy tất cả feedback đã được phê duyệt với phân trang
-        /// </summary>
-        [HttpGet("approved")]
-        public async Task<ActionResult<PagingResponse<FeedbackDto>>> GetApprovedFeedbacks(
-            [FromQuery] int pageNumber = 1, 
-            [FromQuery] int pageSize = 10)
-        {
-            try
-            {
-                // Validate parameters
-                if (pageNumber < 1) pageNumber = 1;
-                if (pageSize < 1 || pageSize > 100) pageSize = 10;
-
-                var feedbacks = await _feedbackService.GetApprovedFeedbacksPagedAsync(pageNumber, pageSize);
-                return Ok(feedbacks);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Lấy tất cả feedback chờ phê duyệt với phân trang (Admin only)
-        /// </summary>
-        [HttpGet("pending")]
-        [Authorize(Roles = RoleConstants.Admin)]
-        public async Task<ActionResult<PagingResponse<FeedbackDto>>> GetPendingFeedbacks(
-            [FromQuery] int pageNumber = 1, 
-            [FromQuery] int pageSize = 10)
-        {
-            try
-            {
-                // Validate parameters
-                if (pageNumber < 1) pageNumber = 1;
-                if (pageSize < 1 || pageSize > 100) pageSize = 10;
-
-                var feedbacks = await _feedbackService.GetPendingFeedbacksPagedAsync(pageNumber, pageSize);
-                return Ok(feedbacks);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new ApiResponse<PagingResponse<FeedbackDto>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
             }
         }
 
@@ -173,21 +143,22 @@ namespace Snapspot.WebAPI.Controllers
         /// </summary>
         [HttpPost]
         [Authorize(Roles = RoleConstants.User)]
-        public async Task<ActionResult<FeedbackDto>> Create([FromBody] CreateFeedbackDto createFeedbackDto)
+        public async Task<ActionResult<ApiResponse<FeedbackDto>>> Create([FromBody] CreateFeedbackDto createFeedbackDto)
         {
             try
             {
                 var currentUserId = GetCurrentUserId();
-                var feedback = await _feedbackService.CreateAsync(createFeedbackDto, currentUserId);
-                return CreatedAtAction(nameof(GetById), new { id = feedback.Id }, feedback);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { message = ex.Message });
+                var result = await _feedbackUseCase.CreateAsync(createFeedbackDto, currentUserId);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new ApiResponse<FeedbackDto>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
             }
         }
 
@@ -196,29 +167,22 @@ namespace Snapspot.WebAPI.Controllers
         /// </summary>
         [HttpPut("{id}")]
         [Authorize(Roles = RoleConstants.User)]
-        public async Task<ActionResult<FeedbackDto>> Update(Guid id, [FromBody] UpdateFeedbackDto updateFeedbackDto)
+        public async Task<ActionResult<ApiResponse<FeedbackDto>>> Update(Guid id, [FromBody] UpdateFeedbackDto updateFeedbackDto)
         {
             try
             {
                 var currentUserId = GetCurrentUserId();
-                var feedback = await _feedbackService.UpdateAsync(id, updateFeedbackDto, currentUserId);
-                return Ok(feedback);
-            }
-            catch (ArgumentException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid();
-            }
-            catch (InvalidOperationException ex)
-            {
-                return BadRequest(new { message = ex.Message });
+                var result = await _feedbackUseCase.UpdateAsync(id, updateFeedbackDto, currentUserId);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new ApiResponse<FeedbackDto>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
             }
         }
 
@@ -227,55 +191,30 @@ namespace Snapspot.WebAPI.Controllers
         /// </summary>
         [HttpDelete("{id}")]
         [Authorize(Roles = RoleConstants.User)]
-        public async Task<ActionResult> Delete(Guid id)
+        public async Task<ActionResult<ApiResponse<string>>> Delete(Guid id)
         {
             try
             {
                 var currentUserId = GetCurrentUserId();
-                var result = await _feedbackService.DeleteAsync(id, currentUserId);
-                if (!result)
-                    return NotFound();
-
-                return NoContent();
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Forbid();
+                var result = await _feedbackUseCase.DeleteAsync(id, currentUserId);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// Phê duyệt/từ chối feedback (Admin only)
-        /// </summary>
-        [HttpPut("{id}/approve")]
-        [Authorize(Roles = RoleConstants.Admin)]
-        public async Task<ActionResult<FeedbackDto>> Approve(Guid id, [FromBody] ApproveFeedbackDto approveFeedbackDto)
-        {
-            try
-            {
-                var feedback = await _feedbackService.ApproveAsync(id, approveFeedbackDto);
-                return Ok(feedback);
-            }
-            catch (ArgumentException ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new ApiResponse<string>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
             }
         }
 
         private Guid GetCurrentUserId()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-                throw new UnauthorizedAccessException("Không thể xác định user hiện tại");
-
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
+                throw new UnauthorizedAccessException("Invalid user ID");
             return userId;
         }
     }

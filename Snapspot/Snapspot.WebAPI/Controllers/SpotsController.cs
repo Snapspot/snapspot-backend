@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Snapspot.Application.Models.Spots;
-using Snapspot.Application.Services;
+using Snapspot.Application.UseCases.Interfaces.Spot;
+using Snapspot.Shared.Common;
+using Snapspot.Shared.Constants;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,90 +15,169 @@ namespace Snapspot.WebAPI.Controllers
     [Route("api/[controller]")]
     public class SpotsController : ControllerBase
     {
-        private readonly ISpotService _spotService;
+        private readonly ISpotUseCase _spotUseCase;
 
-        public SpotsController(ISpotService spotService)
+        public SpotsController(ISpotUseCase spotUseCase)
         {
-            _spotService = spotService;
+            _spotUseCase = spotUseCase;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<ApiResponse<IEnumerable<SpotDto>>>> GetAll()
         {
-            var spots = await _spotService.GetAllAsync();
-            return Ok(spots);
+            try
+            {
+                var result = await _spotUseCase.GetAllAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<IEnumerable<SpotDto>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
+            }
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<SpotDto>> GetById(Guid id)
+        public async Task<ActionResult<ApiResponse<SpotDto>>> GetById(Guid id)
         {
-            var spot = await _spotService.GetByIdAsync(id);
-            if (spot == null)
-                return NotFound();
-
-            return Ok(spot);
+            try
+            {
+                var result = await _spotUseCase.GetByIdAsync(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<SpotDto>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
+            }
         }
 
         [HttpGet("district/{districtId}")]
-        public async Task<ActionResult<IEnumerable<SpotDto>>> GetByDistrictId(Guid districtId)
+        public async Task<ActionResult<ApiResponse<IEnumerable<SpotDto>>>> GetByDistrictId(Guid districtId)
         {
-            var spots = await _spotService.GetByDistrictIdAsync(districtId);
-            return Ok(spots);
+            try
+            {
+                var result = await _spotUseCase.GetByDistrictIdAsync(districtId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<IEnumerable<SpotDto>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("province/{provinceId}")]
+        public async Task<ActionResult<ApiResponse<IEnumerable<SpotDto>>>> GetByProvinceId(Guid provinceId)
+        {
+            try
+            {
+                var result = await _spotUseCase.GetByProvinceIdAsync(provinceId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<IEnumerable<SpotDto>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<ApiResponse<IEnumerable<SpotDto>>>> Search([FromQuery] string searchTerm)
+        {
+            try
+            {
+                var result = await _spotUseCase.SearchSpotsAsync(searchTerm);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<IEnumerable<SpotDto>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
+            }
         }
 
         [HttpPost]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<SpotDto>> Create([FromBody] CreateSpotDto createSpotDto)
+        [Authorize(Roles = RoleConstants.Admin)]
+        public async Task<ActionResult<ApiResponse<SpotDto>>> Create([FromBody] CreateSpotDto createSpotDto)
         {
             try
             {
-                var spot = await _spotService.CreateAsync(createSpotDto);
-                return CreatedAtAction(nameof(GetById), new { id = spot.Id }, spot);
+                var result = await _spotUseCase.CreateAsync(createSpotDto);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest(new { 
-                    message = ex.Message,
-                    details = ex.InnerException?.Message,
-                    stackTrace = ex.StackTrace
+                return BadRequest(new ApiResponse<SpotDto>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
                 });
             }
         }
 
         [HttpPut("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<SpotDto>> Update(Guid id, [FromBody] UpdateSpotDto updateSpotDto)
+        [Authorize(Roles = RoleConstants.Admin)]
+        public async Task<ActionResult<ApiResponse<SpotDto>>> Update(Guid id, [FromBody] UpdateSpotDto updateSpotDto)
         {
             try
             {
-                var spot = await _spotService.UpdateAsync(id, updateSpotDto);
-                return Ok(spot);
+                var result = await _spotUseCase.UpdateAsync(id, updateSpotDto);
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                if (ex.Message == "Spot not found")
-                    return NotFound();
-
-                return BadRequest(new { 
-                    message = ex.Message,
-                    details = ex.InnerException?.Message,
-                    stackTrace = ex.StackTrace
+                return BadRequest(new ApiResponse<SpotDto>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
                 });
             }
         }
 
         [HttpDelete("{id}")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> Delete(Guid id)
+        [Authorize(Roles = RoleConstants.Admin)]
+        public async Task<ActionResult<ApiResponse<string>>> Delete(Guid id)
         {
-            var result = await _spotService.DeleteAsync(id);
-            if (!result)
-                return NotFound();
-
-            return NoContent();
+            try
+            {
+                var result = await _spotUseCase.DeleteAsync(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<string>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
+            }
         }
     }
 } 

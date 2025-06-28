@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Snapspot.Application.Models.SellerPackages;
-using Snapspot.Application.Services;
+using Snapspot.Application.UseCases.Interfaces.SellerPackage;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,24 +13,24 @@ namespace Snapspot.WebAPI.Controllers
     [Route("api/[controller]")]
     public class SellerPackagesController : ControllerBase
     {
-        private readonly ISellerPackageService _sellerPackageService;
+        private readonly ISellerPackageUseCase _sellerPackageUseCase;
 
-        public SellerPackagesController(ISellerPackageService sellerPackageService)
+        public SellerPackagesController(ISellerPackageUseCase sellerPackageUseCase)
         {
-            _sellerPackageService = sellerPackageService;
+            _sellerPackageUseCase = sellerPackageUseCase;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SellerPackageDto>>> GetAll()
         {
-            var sellerPackages = await _sellerPackageService.GetAllAsync();
+            var sellerPackages = await _sellerPackageUseCase.GetAllAsync();
             return Ok(sellerPackages);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<SellerPackageDto>> GetById(Guid id)
         {
-            var sellerPackage = await _sellerPackageService.GetByIdAsync(id);
+            var sellerPackage = await _sellerPackageUseCase.GetByIdAsync(id);
             if (sellerPackage == null)
                 return NotFound();
             return Ok(sellerPackage);
@@ -43,8 +43,10 @@ namespace Snapspot.WebAPI.Controllers
         {
             try
             {
-                var sellerPackage = await _sellerPackageService.CreateAsync(createSellerPackageDto);
-                return CreatedAtAction(nameof(GetById), new { id = sellerPackage.Id }, sellerPackage);
+                var result = await _sellerPackageUseCase.CreateAsync(createSellerPackageDto);
+                if (!result.Success || result.Data == null)
+                    return BadRequest(result.Message);
+                return CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, result.Data);
             }
             catch (Exception ex)
             {
@@ -59,8 +61,10 @@ namespace Snapspot.WebAPI.Controllers
         {
             try
             {
-                var sellerPackage = await _sellerPackageService.UpdateAsync(id, updateSellerPackageDto);
-                return Ok(sellerPackage);
+                var result = await _sellerPackageUseCase.UpdateAsync(id, updateSellerPackageDto);
+                if (!result.Success || result.Data == null)
+                    return BadRequest(result.Message);
+                return Ok(result.Data);
             }
             catch (Exception ex)
             {
@@ -75,9 +79,9 @@ namespace Snapspot.WebAPI.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Delete(Guid id)
         {
-            var result = await _sellerPackageService.DeleteAsync(id);
-            if (!result)
-                return NotFound();
+            var result = await _sellerPackageUseCase.DeleteAsync(id);
+            if (!result.Success)
+                return NotFound(result.Message);
             return NoContent();
         }
     }

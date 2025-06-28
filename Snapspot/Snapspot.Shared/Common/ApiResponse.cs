@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Snapspot.Shared.Common
 {
-    public class ApiResponse<T> where T : class
+    public class ApiResponse<T>
     {
         public bool Success { get; set; }
         public string MessageId { get; set; } = string.Empty;

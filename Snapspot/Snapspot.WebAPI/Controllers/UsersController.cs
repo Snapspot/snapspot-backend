@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Snapspot.Application.Models.Users;
-using Snapspot.Application.Services;
+using Snapspot.Application.Models.Requests.User;
+using Snapspot.Application.Models.Responses.User;
+using Snapspot.Application.UseCases.Interfaces.User;
+using Snapspot.Shared.Common;
 using System;
 using System.Threading.Tasks;
 
@@ -13,56 +15,41 @@ namespace Snapspot.WebAPI.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UsersController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IUserUseCase _userUseCase;
 
-        public UsersController(IUserService userService)
+        public UsersController(IUserUseCase userUseCase)
         {
-            _userService = userService;
+            _userUseCase = userUseCase;
         }
 
         [HttpGet]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] PagingRequest request)
         {
-            var users = await _userService.GetAllAsync();
-            return Ok(users);
-        }
-
-        [HttpGet("third-party")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetThirdPartyUsers()
-        {
-            var thirdPartyUsers = await _userService.GetThirdPartyUsersAsync();
-            return Ok(thirdPartyUsers);
-        }
-
-        [HttpGet("regular")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetRegularUsers()
-        {
-            var regularUsers = await _userService.GetRegularUsersAsync();
-            return Ok(regularUsers);
+            var result = await _userUseCase.GetAllAsync(request);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin,User,ThirdParty")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var user = await _userService.GetByIdAsync(id);
-            if (user == null)
+            var result = await _userUseCase.GetByIdAsync(id);
+            if (result == null || !result.Success)
                 return NotFound();
-
-            return Ok(user);
+            return Ok(result);
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([FromBody] CreateUserDto createUserDto)
+        public async Task<IActionResult> Create([FromBody] CreateUserRequest createUserRequest)
         {
             try
             {
-                var user = await _userService.CreateAsync(createUserDto);
-                return CreatedAtAction(nameof(GetById), new { id = user.Id }, user);
+                var result = await _userUseCase.CreateUserAsync(createUserRequest);
+                if (!result.Success)
+                    return BadRequest(result.Message);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -72,12 +59,14 @@ namespace Snapspot.WebAPI.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,User,ThirdParty")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserDto updateUserDto)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserRequest updateUserRequest)
         {
             try
             {
-                var user = await _userService.UpdateAsync(id, updateUserDto);
-                return Ok(user);
+                var result = await _userUseCase.UpdateProfileAsync(id, updateUserRequest);
+                if (!result.Success)
+                    return BadRequest(result.Message);
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -88,48 +77,26 @@ namespace Snapspot.WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var result = await _userService.DeleteAsync(id);
-            if (!result)
-                return NotFound();
-
+            var result = await _userUseCase.DeleteAccountAsync(id);
+            if (!result.Success)
+                return NotFound(result.Message);
             return NoContent();
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] UserLoginDto loginDto)
-        {
-            try
-            {
-                var user = await _userService.LoginAsync(loginDto);
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
         [HttpPost("{id}/change-password")]
-        public async Task<IActionResult> ChangePassword(Guid id, [FromBody] ChangePasswordRequest request)
+        public async Task<IActionResult> ChangePassword(Guid id, [FromBody] Snapspot.Application.Models.Requests.User.ChangePasswordRequest request)
         {
             try
             {
-                var result = await _userService.ChangePasswordAsync(id, request.CurrentPassword, request.NewPassword);
-                if (!result)
-                    return NotFound();
-
-                return NoContent();
+                var result = await _userUseCase.ChangePasswordAsync(id, request);
+                if (!result.Success)
+                    return NotFound(result.Message);
+                return Ok(result);
             }
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
         }
-    }
-
-    public class ChangePasswordRequest
-    {
-        public string CurrentPassword { get; set; }
-        public string NewPassword { get; set; }
     }
 } 

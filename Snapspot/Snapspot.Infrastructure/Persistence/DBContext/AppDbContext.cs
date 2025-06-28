@@ -1,12 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Snapspot.Application.Interfaces;
 using Snapspot.Domain.Base;
 using Snapspot.Domain.Entities;
 using Snapspot.Shared.Enums;
 
 namespace Snapspot.Infrastructure.Persistence.DBContext
 {
-    public class AppDbContext : DbContext, IAppDbContext
+    public class AppDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
