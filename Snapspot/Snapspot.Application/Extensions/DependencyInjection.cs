@@ -28,6 +28,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Snapspot.Application.UseCases.Interfaces.ThirdParty;
+using Snapspot.Application.UseCases.Implementations.ThirdParty;
 
 namespace Snapspot.Application.Extensions
 {
@@ -45,6 +47,9 @@ namespace Snapspot.Application.Extensions
             _ = services.AddScoped<IDistrictUseCase, DistrictUseCase>();
             _ = services.AddScoped<ISellerPackageUseCase, SellerPackageUseCase>();
             _ = services.AddScoped<IAgencyServiceUseCase, AgencyServiceUseCase>();
+
+            _ = services.AddScoped<IThirdPartyUseCase, ThirdPartyUseCase>();
+
 
             return services;
         }

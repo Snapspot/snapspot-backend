@@ -24,6 +24,9 @@ namespace Snapspot.Shared.Common
         public const string E0002 = "An unexpected error occurred. Please try again later.";
         public const string E0003 = "Validation failed. Please check your input."; 
         public const string E0004 = "Please check the detailed error list for more information."; 
+        
+        public const string E0010 = "Bạn chưa đăng nhập vào hệ thống. Vui lòng đăng nhập!";
+        public const string E0020 = "Bạn chưa đăng ký trở thành ThirdParty/User chưa có công ty";
 
         // Mapping ID to message
         private static readonly Dictionary<string, string> _messages = new()
@@ -38,7 +41,9 @@ namespace Snapspot.Shared.Common
             { nameof(E0001), E0001 },
             { nameof(E0002), E0002 },
             { nameof(E0003), E0003 },
-            { nameof(E0004), E0004 }
+            { nameof(E0004), E0004 },
+            { nameof(E0010), E0010 },
+            { nameof(E0020), E0020 },
         };
 
         // Method to get message content by ID

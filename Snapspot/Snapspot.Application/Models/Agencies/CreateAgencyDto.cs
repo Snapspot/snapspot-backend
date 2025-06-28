@@ -27,9 +27,6 @@ namespace Snapspot.Application.Models.Agencies
         public string AvatarUrl { get; set; }
 
         [Required]
-        public Guid CompanyId { get; set; }
-
-        [Required]
         public Guid SpotId { get; set; }
 
         public string Description { get; set; }

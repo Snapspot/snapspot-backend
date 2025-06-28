@@ -9,7 +9,7 @@ namespace Snapspot.Application.Repositories
     {
         Task<Company> GetByIdAsync(Guid id);
         Task<IEnumerable<Company>> GetAllAsync();
-        Task<Company> GetByUserIdAsync(Guid userId);
+        Task<Company?> GetByUserIdAsync(Guid userId);
         Task AddAsync(Company company);
         Task UpdateAsync(Company company);
         Task DeleteAsync(Company company);

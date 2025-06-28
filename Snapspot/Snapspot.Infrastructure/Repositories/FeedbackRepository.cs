@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Snapspot.Application.Models.Responses.ThirdParty;
 using Snapspot.Application.Repositories;
 using Snapspot.Domain.Entities;
 using Snapspot.Infrastructure.Persistence.DBContext;
@@ -189,6 +190,15 @@ namespace Snapspot.Infrastructure.Repositories
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Feedback>> GetFeedbackByCompanyId(Guid companyId)
+        {
+            return await _context.Feedbacks
+                .Include(f => f.User)
+                .Include(f => f.Agency)
+                .Where(f => f.Agency.CompanyId == companyId)
+                .ToListAsync();
         }
     }
 } 

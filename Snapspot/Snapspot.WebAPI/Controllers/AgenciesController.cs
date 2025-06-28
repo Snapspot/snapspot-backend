@@ -7,6 +7,7 @@ using Snapspot.Shared.Common;
 using Snapspot.Shared.Constants;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Snapspot.WebAPI.Controllers
@@ -119,23 +120,13 @@ namespace Snapspot.WebAPI.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = RoleConstants.Admin)]
+        [Authorize(Roles = RoleConstants.ThirdParty)]
         public async Task<ActionResult<ApiResponse<AgencyDto>>> Create([FromBody] CreateAgencyDto createAgencyDto)
         {
-            try
-            {
-                var result = await _agencyUseCase.CreateAsync(createAgencyDto);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ApiResponse<AgencyDto>
-                {
-                    Success = false,
-                    MessageId = MessageId.E0000,
-                    Message = ex.Message
-                });
-            }
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = await _agencyUseCase.CreateAsync(createAgencyDto, userId);
+            return Ok(result);
+
         }
 
         [HttpPut("{id}")]
@@ -159,7 +150,7 @@ namespace Snapspot.WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = RoleConstants.Admin)]
+        [Authorize(Roles = $"{RoleConstants.Admin},{RoleConstants.ThirdParty}")]
         public async Task<ActionResult<ApiResponse<string>>> Delete(Guid id)
         {
             try

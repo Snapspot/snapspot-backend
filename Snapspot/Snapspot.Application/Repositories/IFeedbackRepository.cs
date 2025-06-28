@@ -14,7 +14,8 @@ namespace Snapspot.Application.Repositories
         Task<IEnumerable<Feedback>> GetByUserIdAsync(Guid userId);
         Task<IEnumerable<Feedback>> GetApprovedFeedbacksAsync();
         Task<IEnumerable<Feedback>> GetPendingFeedbacksAsync();
-        
+        Task<IEnumerable<Feedback>> GetFeedbackByCompanyId(Guid companyId);
+
         // Phân trang
         Task<PagingResponse<Feedback>> GetPagedAsync(int pageNumber, int pageSize);
         Task<PagingResponse<Feedback>> GetByAgencyIdPagedAsync(Guid agencyId, int pageNumber, int pageSize);

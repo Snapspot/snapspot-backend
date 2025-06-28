@@ -1,4 +1,5 @@
 using Snapspot.Application.Models.Agencies;
+using Snapspot.Application.Models.Responses.ThirdParty;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.UseCases.Interfaces.Agency;
 using Snapspot.Shared.Common;
@@ -14,15 +15,18 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
         private readonly IAgencyRepository _agencyRepository;
         private readonly ICompanyRepository _companyRepository;
         private readonly ISpotRepository _spotRepository;
+        private readonly IUserRepository _userRepository;
 
         public AgencyUseCase(
             IAgencyRepository agencyRepository,
             ICompanyRepository companyRepository,
-            ISpotRepository spotRepository)
+            ISpotRepository spotRepository,
+            IUserRepository userRepository)
         {
             _agencyRepository = agencyRepository;
             _companyRepository = companyRepository;
             _spotRepository = spotRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<ApiResponse<AgencyDto>> GetByIdAsync(Guid id)
@@ -164,22 +168,27 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
             }
         }
 
-        public async Task<ApiResponse<AgencyDto>> CreateAsync(CreateAgencyDto createAgencyDto)
+        public async Task<ApiResponse<AgencyDto>> CreateAsync(CreateAgencyDto createAgencyDto, string? userId)
         {
+            if (userId == null)
+                return new ApiResponse<AgencyDto>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0010,
+                    Message = Message.GetMessageById(MessageId.E0010)
+                };
+            var company = await GetCompanyByUser(userId);
+            if (company == null)
+            {
+                return new ApiResponse<AgencyDto>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0020,
+                    Message = Message.GetMessageById(MessageId.E0020)
+                };
+            }
             try
             {
-                // Business logic: Validate company exists
-                var company = await _companyRepository.GetByIdAsync(createAgencyDto.CompanyId);
-                if (company == null)
-                {
-                    return new ApiResponse<AgencyDto>
-                    {
-                        Success = false,
-                        MessageId = MessageId.E0000,
-                        Message = "Company not found"
-                    };
-                }
-
                 // Business logic: Validate spot exists
                 var spot = await _spotRepository.GetByIdAsync(createAgencyDto.SpotId);
                 if (spot == null)
@@ -194,7 +203,7 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
 
                 // Business logic: Check if agency name already exists in the same company and spot
                 var allAgencies = await _agencyRepository.GetAllAsync();
-                var existingAgency = allAgencies.FirstOrDefault(x => x.Name == createAgencyDto.Name && x.CompanyId == createAgencyDto.CompanyId);
+                var existingAgency = allAgencies.FirstOrDefault(x => x.Name == createAgencyDto.Name && x.CompanyId == company.Id);
                 if (existingAgency != null)
                 {
                     return new ApiResponse<AgencyDto>
@@ -213,7 +222,7 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
                     Fullname = createAgencyDto.Fullname,
                     PhoneNumber = createAgencyDto.PhoneNumber,
                     AvatarUrl = createAgencyDto.AvatarUrl,
-                    CompanyId = createAgencyDto.CompanyId,
+                    CompanyId = company.Id,
                     SpotId = createAgencyDto.SpotId,
                     Description = createAgencyDto.Description,
                     Rating = 0,
@@ -263,6 +272,15 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
                     Message = $"An error occurred: {ex.Message}"
                 };
             }
+        }
+
+        private async Task<Domain.Entities.Company?> GetCompanyByUser(string userIdString)
+        {
+            var userId = Guid.Parse(userIdString);
+            var user = await _userRepository.GetByUserIdAsync(userId);
+            if (user == null) return null;
+            var company = await _companyRepository.GetByUserIdAsync(user.Id);
+            return company;
         }
 
         public async Task<ApiResponse<AgencyDto>> UpdateAsync(Guid id, UpdateAgencyDto updateAgencyDto)
@@ -413,7 +431,8 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
                     };
                 }
 
-                await _agencyRepository.DeleteAsync(agency);
+                agency.IsDeleted = true;
+                await _agencyRepository.UpdateAsync(agency);
                 await _agencyRepository.SaveChangesAsync();
 
                 return new ApiResponse<string>
