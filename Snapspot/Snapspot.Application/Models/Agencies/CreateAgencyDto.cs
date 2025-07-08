@@ -30,5 +30,8 @@ namespace Snapspot.Application.Models.Agencies
         public Guid SpotId { get; set; }
 
         public string Description { get; set; }
+
+        [Required]
+        public Guid[] AgencyServiceIds { get; set; }
     }
 } 

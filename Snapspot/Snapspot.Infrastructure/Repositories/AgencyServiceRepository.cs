@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Snapspot.Application.Repositories;
 using Snapspot.Domain.Entities;
 using Snapspot.Infrastructure.Persistence.DBContext;
@@ -89,6 +89,21 @@ namespace Snapspot.Infrastructure.Repositories
             {
                 service.Agencies.Remove(agency);
             }
+        }
+
+        public async Task<IEnumerable<AgencyService>> FindAllAsync(Guid[] expectedIds)
+        {
+            var services = await _context.AgencyServices
+                .Where(s => expectedIds.Contains(s.Id))
+                .ToListAsync();
+
+            var foundIds = services.Select(s => s.Id).ToHashSet();
+            var missingIds = expectedIds.Where(id => !foundIds.Contains(id)).ToList();
+
+            if (missingIds.Any())
+                throw new KeyNotFoundException($"Không tìm thấy AgencyService với Id: {string.Join(", ", missingIds)}");
+
+            return services;
         }
     }
 } 

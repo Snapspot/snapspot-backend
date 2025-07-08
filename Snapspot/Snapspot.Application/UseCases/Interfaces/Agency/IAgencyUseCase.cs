@@ -1,4 +1,5 @@
 using Snapspot.Application.Models.Agencies;
+using Snapspot.Application.Models.Responses.Agency;
 using Snapspot.Shared.Common;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace Snapspot.Application.UseCases.Interfaces.Agency
         // CRUD Operations
         Task<ApiResponse<AgencyDto>> GetByIdAsync(Guid id);
         Task<ApiResponse<IEnumerable<AgencyDto>>> GetAllAsync();
-        Task<ApiResponse<AgencyDto>> CreateAsync(CreateAgencyDto createAgencyDto, string? userId);
+        Task<ApiResponse<AgencyCreationResponse>> CreateAsync(CreateAgencyDto createAgencyDto, string? userId);
         Task<ApiResponse<AgencyDto>> UpdateAsync(Guid id, UpdateAgencyDto updateAgencyDto);
         Task<ApiResponse<string>> DeleteAsync(Guid id);
         

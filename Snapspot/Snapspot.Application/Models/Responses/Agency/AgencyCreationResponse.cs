@@ -1,10 +1,14 @@
+﻿using Snapspot.Application.Models.Agencies;
+using Snapspot.Application.Models.AgencyServices;
 using System;
 using System.Collections.Generic;
-using Snapspot.Application.Models.AgencyServices;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Snapspot.Application.Models.Agencies
+namespace Snapspot.Application.Models.Responses.Agency
 {
-    public class AgencyDto
+    public class AgencyCreationResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
@@ -17,7 +21,7 @@ namespace Snapspot.Application.Models.Agencies
         public string CompanyName { get; set; }
         public Guid SpotId { get; set; }
         public string SpotName { get; set; }
-        public ICollection<AgencyServiceDto> Services { get; set; }
+        public ICollection<AgencyServiceResponse> Services { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
@@ -26,3 +30,9 @@ namespace Snapspot.Application.Models.Agencies
     }
 }
 
+public class AgencyServiceResponse
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string Color { get; set; }
+}

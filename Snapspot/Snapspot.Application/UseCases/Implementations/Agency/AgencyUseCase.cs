@@ -1,4 +1,5 @@
 using Snapspot.Application.Models.Agencies;
+using Snapspot.Application.Models.Responses.Agency;
 using Snapspot.Application.Models.Responses.ThirdParty;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.UseCases.Interfaces.Agency;
@@ -16,17 +17,20 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
         private readonly ICompanyRepository _companyRepository;
         private readonly ISpotRepository _spotRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IAgencyServiceRepository _agencyServiceRepository;
 
         public AgencyUseCase(
             IAgencyRepository agencyRepository,
             ICompanyRepository companyRepository,
             ISpotRepository spotRepository,
-            IUserRepository userRepository)
+            IUserRepository userRepository,
+            IAgencyServiceRepository agencyServiceRepository)
         {
             _agencyRepository = agencyRepository;
             _companyRepository = companyRepository;
             _spotRepository = spotRepository;
             _userRepository = userRepository;
+            _agencyServiceRepository = agencyServiceRepository;
         }
 
         public async Task<ApiResponse<AgencyDto>> GetByIdAsync(Guid id)
@@ -168,10 +172,10 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
             }
         }
 
-        public async Task<ApiResponse<AgencyDto>> CreateAsync(CreateAgencyDto createAgencyDto, string? userId)
+        public async Task<ApiResponse<AgencyCreationResponse>> CreateAsync(CreateAgencyDto createAgencyDto, string? userId)
         {
             if (userId == null)
-                return new ApiResponse<AgencyDto>
+                return new ApiResponse<AgencyCreationResponse>
                 {
                     Success = false,
                     MessageId = MessageId.E0010,
@@ -180,7 +184,7 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
             var company = await GetCompanyByUser(userId);
             if (company == null)
             {
-                return new ApiResponse<AgencyDto>
+                return new ApiResponse<AgencyCreationResponse>
                 {
                     Success = false,
                     MessageId = MessageId.E0020,
@@ -193,7 +197,7 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
                 var spot = await _spotRepository.GetByIdAsync(createAgencyDto.SpotId);
                 if (spot == null)
                 {
-                    return new ApiResponse<AgencyDto>
+                    return new ApiResponse<AgencyCreationResponse>
                     {
                         Success = false,
                         MessageId = MessageId.E0000,
@@ -206,13 +210,19 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
                 var existingAgency = allAgencies.FirstOrDefault(x => x.Name == createAgencyDto.Name && x.CompanyId == company.Id);
                 if (existingAgency != null)
                 {
-                    return new ApiResponse<AgencyDto>
+                    return new ApiResponse<AgencyCreationResponse>
                     {
                         Success = false,
                         MessageId = MessageId.E0000,
                         Message = "An agency with this name already exists in this company"
                     };
                 }
+
+                List<Domain.Entities.AgencyService> agencyServices;
+
+                var enumarabelAgencyServices = await _agencyServiceRepository
+                    .FindAllAsync(createAgencyDto.AgencyServiceIds);
+                agencyServices = enumarabelAgencyServices.ToList();
 
                 var agency = new Domain.Entities.Agency
                 {
@@ -228,13 +238,14 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
                     Rating = 0,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
-                    IsDeleted = false
+                    IsDeleted = false,
+                    Services = agencyServices
                 };
 
                 await _agencyRepository.AddAsync(agency);
                 await _agencyRepository.SaveChangesAsync();
 
-                var agencyDto = new AgencyDto
+                var agencyDto = new AgencyCreationResponse
                 {
                     Id = agency.Id,
                     Name = agency.Name,
@@ -251,11 +262,16 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
                     CreatedAt = agency.CreatedAt,
                     UpdatedAt = agency.UpdatedAt,
                     IsDeleted = agency.IsDeleted,
-                    Services = new List<Models.AgencyServices.AgencyServiceDto>(),
+                    Services = agencyServices.Select(s => new AgencyServiceResponse
+                    {
+                        Id = s.Id,
+                        Name = s.Name,
+                        Color = s.Color
+                    }).ToList(),
                     Feedbacks = new List<FeedbackDto>()
                 };
 
-                return new ApiResponse<AgencyDto>
+                return new ApiResponse<AgencyCreationResponse>
                 {
                     Data = agencyDto,
                     Success = true,
@@ -265,7 +281,7 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
             }
             catch (Exception ex)
             {
-                return new ApiResponse<AgencyDto>
+                return new ApiResponse<AgencyCreationResponse>
                 {
                     Success = false,
                     MessageId = MessageId.E0000,

@@ -17,5 +17,6 @@ namespace Snapspot.Application.Repositories
         Task SaveChangesAsync();
         Task AddToAgencyAsync(Guid serviceId, Guid agencyId);
         Task RemoveFromAgencyAsync(Guid serviceId, Guid agencyId);
+        Task<IEnumerable<AgencyService>> FindAllAsync(Guid[] expectedIds);
     }
 } 
