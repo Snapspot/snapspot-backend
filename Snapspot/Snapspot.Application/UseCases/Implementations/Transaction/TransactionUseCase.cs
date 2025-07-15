@@ -67,6 +67,7 @@ namespace Snapspot.Application.UseCases.Implementations.Transaction
             {
               
                 subscription.RemainingDay += month * 30; // Assuming 30 days in a month
+                await _companySellerPackageRepository.SaveChangesAsync();
                 return new ApiResponse<string>
                 {
                     Success = true,
@@ -79,9 +80,13 @@ namespace Snapspot.Application.UseCases.Implementations.Transaction
                 {
                     CompaniesId = transaction.Company.Id,
                     SellerPackagesId = transaction.SellerPackage.Id,
-                    RemainingDay = (int)transaction.Amount / (int)transaction.SellerPackage.Price * 30, // Assuming 30 days in a month
+                    RemainingDay = month * 30, // Assuming 30 days in a month
                     IsActive = true
                 };
+
+                await _companySellerPackageRepository.Add(newSubcription);
+                await _companySellerPackageRepository.SaveChangesAsync();
+
                 return new ApiResponse<string>
                 {
                     Success = true,

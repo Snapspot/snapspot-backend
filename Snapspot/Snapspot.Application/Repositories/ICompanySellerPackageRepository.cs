@@ -12,7 +12,9 @@ namespace Snapspot.Application.Repositories
        
         Task<IEnumerable<Guid>> GetCompaniesBySellerPackageAsync(Guid sellerPackageId);
         Task<IEnumerable<Guid>> GetSellerPackagesByCompanyAsync(Guid companyId);
-        Task<CompanySellerPackage?> CompanyInSellerPackageAsync(Guid companyId, Guid sellerPackageId);
+        Task<CompanySellerPackage?> CompanyInSellerPackageAsync(Guid companyId, Guid sellerPackageId)
+
+        Task Add(CompanySellerPackage companySellerPackage);
         Task SaveChangesAsync();
     }
 }

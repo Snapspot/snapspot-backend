@@ -34,9 +34,14 @@ namespace Snapspot.Infrastructure.Repositories
                 .FirstOrDefaultAsync(csp => csp.CompaniesId == companyId && csp.SellerPackagesId == sellerPackageId);
         }
 
-        public Task SaveChangesAsync()
+        public async Task SaveChangesAsync()
         {
-            throw new NotImplementedException();
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task Add(CompanySellerPackage companySellerPackage)
+        {
+            await _context.Set<CompanySellerPackage>().AddAsync(companySellerPackage);
         }
     }
 }
