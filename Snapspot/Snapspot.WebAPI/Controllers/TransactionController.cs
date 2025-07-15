@@ -23,11 +23,12 @@ namespace Snapspot.WebAPI.Controllers
     {
         private readonly ITransactionUseCase _transactionUseCase;
         private readonly PayOS _payOS;
-
-        public TransactionController(ITransactionUseCase transactionUseCase, PayOS payOS)
+        private ILogger _logger;
+        public TransactionController(ITransactionUseCase transactionUseCase, PayOS payOS, ILogger logger)
         {
             _transactionUseCase = transactionUseCase;
             _payOS = payOS;
+            _logger = logger;
         }
 
         [HttpPost("payment-links")]
@@ -77,7 +78,15 @@ namespace Snapspot.WebAPI.Controllers
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> HandleWebhookPayOS([FromBody] WebhookType request)
         {
+            _logger.LogInformation("Api has been actived");
+
             var webHookData =  _transactionUseCase.VerifyPaymentWebhookData(request);
+            _logger.LogInformation("Verify payment complete");
+            if (webHookData ==  null)
+            {
+                _logger.LogInformation("can't verify paymentdata");
+
+            }
             var response = await _transactionUseCase.CreateUserSubscription(webHookData.Data);
             return Ok(response);
         }

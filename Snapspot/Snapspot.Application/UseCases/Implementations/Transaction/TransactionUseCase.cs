@@ -59,7 +59,9 @@ namespace Snapspot.Application.UseCases.Implementations.Transaction
 
             var subscription = await _companySellerPackageRepository.CompanyInSellerPackageAsync(transaction.Company.Id, transaction.SellerPackage.Id);
 
-            int month = (int)transaction.Amount / (int)transaction.SellerPackage.Price;
+            decimal devidedValue = transaction.Amount / transaction.SellerPackage.Price;
+
+            int month =  ((int)Math.Ceiling(devidedValue));
 
             if (subscription != null)
             {
