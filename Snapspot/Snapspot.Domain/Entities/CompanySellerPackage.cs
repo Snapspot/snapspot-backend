@@ -13,7 +13,7 @@ namespace Snapspot.Domain.Entities
         public Guid SellerPackagesId { get; set; }
         public virtual SellerPackage SellerPackage { get; set; }
         public int RemainingDay { get; set; }
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; }
 
         // Navigation property for Transactions
 
