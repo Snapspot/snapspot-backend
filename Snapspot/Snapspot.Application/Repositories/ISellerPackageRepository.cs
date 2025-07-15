@@ -7,7 +7,7 @@ namespace Snapspot.Application.Repositories
 {
     public interface ISellerPackageRepository
     {
-        Task<SellerPackage> GetByIdAsync(Guid id);
+        Task<SellerPackage?> GetByIdAsync(Guid id);
         Task<IEnumerable<SellerPackage>> GetAllAsync();
         Task AddAsync(SellerPackage sellerPackage);
         Task UpdateAsync(SellerPackage sellerPackage);

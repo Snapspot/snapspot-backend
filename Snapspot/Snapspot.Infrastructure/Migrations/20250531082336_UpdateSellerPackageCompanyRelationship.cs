@@ -39,21 +39,21 @@ namespace Snapspot.Infrastructure.Migrations
                 name: "CompanySellerPackage",
                 columns: table => new
                 {
-                    CompaniesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SellerPackagesId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    CompanyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SellerPackageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CompanySellerPackage", x => new { x.CompaniesId, x.SellerPackagesId });
+                    table.PrimaryKey("PK_CompanySellerPackage", x => new { x.CompanyId, x.SellerPackageId });
                     table.ForeignKey(
                         name: "FK_CompanySellerPackage_Company_CompaniesId",
-                        column: x => x.CompaniesId,
+                        column: x => x.CompanyId,
                         principalTable: "Company",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_CompanySellerPackage_SellerPackage_SellerPackagesId",
-                        column: x => x.SellerPackagesId,
+                        column: x => x.SellerPackageId,
                         principalTable: "SellerPackage",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);

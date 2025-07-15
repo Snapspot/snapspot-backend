@@ -18,19 +18,20 @@ namespace Snapspot.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<SellerPackage> GetByIdAsync(Guid id)
+        public async Task<SellerPackage?> GetByIdAsync(Guid id)
         {
-            return await _context.Set<SellerPackage>()
-                .Include(sp => sp.Companies)
-                .FirstOrDefaultAsync(sp => sp.Id == id && !sp.IsDeleted);
+            return await _context.SellerPackages
+                 .Include(sp => sp.CompanySellerPackages)
+                 .ThenInclude(csp => csp.Company)
+                 .FirstOrDefaultAsync(sp => sp.Id == id);
         }
 
         public async Task<IEnumerable<SellerPackage>> GetAllAsync()
         {
-            return await _context.Set<SellerPackage>()
-                .Include(sp => sp.Companies)
-                .Where(sp => !sp.IsDeleted)
-                .ToListAsync();
+            return await _context.SellerPackages
+                 .Include(sp => sp.CompanySellerPackages)
+                 .ThenInclude(csp => csp.Company)
+                 .ToListAsync();
         }
 
         public async Task AddAsync(SellerPackage sellerPackage)

@@ -7,7 +7,7 @@ namespace Snapspot.Application.Repositories
 {
     public interface ICompanyRepository
     {
-        Task<Company> GetByIdAsync(Guid id);
+        Task<Company?> GetByIdAsync(Guid id);
         Task<IEnumerable<Company>> GetAllAsync();
         Task<Company?> GetByUserIdAsync(Guid userId);
         Task AddAsync(Company company);

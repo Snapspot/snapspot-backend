@@ -9,408 +9,549 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TransactionEntity = Snapspot.Domain.Entities.Transaction;
+using Snapspot.Application.Services;
+using Snapspot.Application.Repositories;
+using Snapspot.Application.Models.Responses.Payment;
+using Net.payOS;
+using Net.payOS.Types;
+using Snapspot.Application.Models.Requests.Payment;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Snapspot.Application.UseCases.Implementations.Transaction
 {
-    //public class TransactionUseCase : ITransactionUseCase
-    //{
-    //    private readonly IAppDbContext _context;
+    public class TransactionUseCase : ITransactionUseCase
+    {
+        private readonly ITransactionRepository _transactionRepository;
+        private readonly ISellerPackageRepository _sellerPackageRepository;
+        private readonly ICompanyRepository _companyRepository;
+        private readonly IPayOSService _payOSService;
+        private readonly PayOS _payOS;
+        private readonly ICompanySellerPackageRepository _companySellerPackageRepository;
 
-    //    public TransactionUseCase(IAppDbContext context)
-    //    {
-    //        _context = context;
-    //    }
+        public TransactionUseCase(
+            ITransactionRepository transactionRepository,
+            ISellerPackageRepository sellerPackageRepository,
+            ICompanyRepository companyRepository,
+            IPayOSService payOSService,
+            PayOS payos,
+            ICompanySellerPackageRepository companySellerPackageRepository)
+        {
+            _transactionRepository = transactionRepository;
+            _sellerPackageRepository = sellerPackageRepository;
+            _companyRepository = companyRepository;
+            _payOSService = payOSService;
+            _payOS = payos;
+            _companySellerPackageRepository = companySellerPackageRepository;
+        }
 
-    //    public async Task<ApiResponse<TransactionDTO>> CreateAsync(CreateTransactionDTO createTransactionDTO)
-    //    {
-    //        try
-    //        {
-    //            // Validate SellerPackage exists
-    //            var sellerPackage = await _context.SellerPackages
-    //                .FirstOrDefaultAsync(sp => sp.Id == createTransactionDTO.SellerPackageId && !sp.IsDeleted);
-    //            if (sellerPackage == null)
-    //            {
-    //                return new ApiResponse<TransactionDTO>
-    //                {
-    //                    Success = false,
-    //                    MessageId = MessageId.E0000,
-    //                    Message = "SellerPackage not found"
-    //                };
-    //            }
+        public async Task<ApiResponse<string>> CreateUserSubscription(WebhookData webhookData)
+        {
+            var transaction = await _transactionRepository.GetByTransactionCode(webhookData.orderCode.ToString());
+            if (transaction == null)
+            {
+                return new ApiResponse<string>
+                {
+                    Success = false,
+                    Message = "cannot find transaction"
+                };
+            }
 
-    //            // Validate Company exists
-    //            var company = await _context.Companies
-    //                .FirstOrDefaultAsync(c => c.Id == createTransactionDTO.CompanyId && !c.IsDeleted);
-    //            if (company == null)
-    //            {
-    //                return new ApiResponse<TransactionDTO>
-    //                {
-    //                    Success = false,
-    //                    MessageId = MessageId.E0000,
-    //                    Message = "Company not found"
-    //                };
-    //            }
 
-    //            // Business logic: Check if company has sufficient balance
-    //            if (createTransactionDTO.Amount > 1000000) // Example business rule
-    //            {
-    //                return new ApiResponse<TransactionDTO>
-    //                {
-    //                    Success = false,
-    //                    MessageId = MessageId.E0000,
-    //                    Message = "Transaction amount exceeds limit"
-    //                };
-    //            }
+            var subscription = await _companySellerPackageRepository.CompanyInSellerPackageAsync(transaction.Company.Id, transaction.SellerPackage.Id);
 
-    //            var transaction = new TransactionEntity
-    //            {
-    //                Id = Guid.NewGuid(),
-    //                SellerPackageId = createTransactionDTO.SellerPackageId,
-    //                CompanyId = createTransactionDTO.CompanyId,
-    //                TransactionCode = GenerateTransactionCode(),
-    //                Amount = createTransactionDTO.Amount,
-    //                PaymentType = createTransactionDTO.PaymentType,
-    //                CreatedAt = DateTime.UtcNow,
-    //                UpdatedAt = DateTime.UtcNow,
-    //                IsDeleted = false
-    //            };
+            int month = (int)transaction.Amount / (int)transaction.SellerPackage.Price;
 
-    //            await _context.Transactions.AddAsync(transaction);
-    //            await _context.SaveChangesAsync();
+            if (subscription != null)
+            {
+              
+                subscription.RemainingDay += month * 30; // Assuming 30 days in a month
+                return new ApiResponse<string>
+                {
+                    Success = true,
+                    Message = "Remaining day has been extended for " + month + " months."
+                };
+            }
+            else
+            {
+                var newSubcription = new CompanySellerPackage
+                {
+                    CompaniesId = transaction.Company.Id,
+                    SellerPackagesId = transaction.SellerPackage.Id,
+                    RemainingDay = (int)transaction.Amount / (int)transaction.SellerPackage.Price * 30, // Assuming 30 days in a month
+                    IsActive = true
+                };
+                return new ApiResponse<string>
+                {
+                    Success = true,
+                    Message = "Subcription has been created for " + month + " months."
+                };
+            }
+        }
 
-    //            var transactionDTO = new TransactionDTO
-    //            {
-    //                Id = transaction.Id,
-    //                SellerPackageId = transaction.SellerPackageId,
-    //                SellerPackageName = sellerPackage.Name,
-    //                CompanyId = transaction.CompanyId,
-    //                CompanyName = company.Name,
-    //                TransactionCode = transaction.TransactionCode,
-    //                Amount = transaction.Amount,
-    //                PaymentType = transaction.PaymentType,
-    //                CreatedAt = transaction.CreatedAt,
-    //                IsDeleted = transaction.IsDeleted
-    //            };
+        public ApiResponse<WebhookData> VerifyPaymentWebhookData(WebhookType webHookType)
+        {
+            var response = _payOS.verifyPaymentWebhookData(webHookType);
+            return ApiResponse<WebhookData>.Ok(response);
+        }
 
-    //            return new ApiResponse<TransactionDTO>
-    //            {
-    //                Data = transactionDTO,
-    //                Success = true,
-    //                MessageId = MessageId.I0000,
-    //                Message = Message.GetMessageById(MessageId.I0000)
-    //            };
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            return new ApiResponse<TransactionDTO>
-    //            {
-    //                Success = false,
-    //                MessageId = MessageId.E0000,
-    //                Message = $"An error occurred while creating the transaction: {ex.Message}"
-    //            };
-    //        }
-    //    }
+        public async Task<ApiResponse<PaymentResponse>> CreatePaymentUrl(Guid userId, PaymentRequest request)
+        {
+           var company = await _companyRepository.GetByUserIdAsync(userId);
+            if (company == null)
+            {
+                return new ApiResponse<PaymentResponse>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = "Company not found"
+                };
+            }
+            var sellerPackage = await _sellerPackageRepository.GetByIdAsync(request.SellerPackageId);
+            if (sellerPackage == null)
+            {
+                return new ApiResponse<PaymentResponse>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = "SellerPackage not found"
+                };
+            }
 
-    //    public async Task<ApiResponse<IEnumerable<TransactionDTO>>> GetAllAsync()
-    //    {
-    //        try
-    //        {
-    //            var transactions = await _context.Transactions
-    //                .Include(t => t.SellerPackage)
-    //                .Include(t => t.Company)
-    //                .Where(t => !t.IsDeleted)
-    //                .Select(t => new TransactionDTO
-    //                {
-    //                    Id = t.Id,
-    //                    SellerPackageId = t.SellerPackageId,
-    //                    SellerPackageName = t.SellerPackage.Name,
-    //                    CompanyId = t.CompanyId,
-    //                    CompanyName = t.Company.Name,
-    //                    TransactionCode = t.TransactionCode,
-    //                    Amount = t.Amount,
-    //                    PaymentType = t.PaymentType,
-    //                    CreatedAt = t.CreatedAt,
-    //                    IsDeleted = t.IsDeleted
-    //                })
-    //                .ToListAsync();
+            ItemData item = new ItemData(sellerPackage.Name, request.Month, (int)sellerPackage.Price);
+            List<ItemData> items = new List<ItemData>();
+            items.Add(item);
 
-    //            return new ApiResponse<IEnumerable<TransactionDTO>>
-    //            {
-    //                Data = transactions,
-    //                Success = true,
-    //                MessageId = MessageId.I0000,
-    //                Message = Message.GetMessageById(MessageId.I0000)
-    //            };
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            return new ApiResponse<IEnumerable<TransactionDTO>>
-    //            {
-    //                Success = false,
-    //                MessageId = MessageId.E0000,
-    //                Message = $"An error occurred while retrieving transactions: {ex.Message}"
-    //            };
-    //        }
-    //    }
+            var cancelUrl = "https://snapspot.site/home";
+            var returnUrl = "https://snapspot.site/home";
 
-    //    public async Task<ApiResponse<TransactionDTO>> GetByIdAsync(Guid id)
-    //    {
-    //        try
-    //        {
-    //            var transaction = await _context.Transactions
-    //                .Include(t => t.SellerPackage)
-    //                .Include(t => t.Company)
-    //                .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
+            TransactionEntity newTransaction = new()
+            {
+                SellerPackageId = request.SellerPackageId,
+                CompanyId = company.Id,
+                TransactionCode = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(), // Example transaction code, you might want to use a more complex logic
+                Amount = (int)sellerPackage.Price * request.Month,
+                PaymentType = "Chuyển khoản",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsDeleted = false
+            };
 
-    //            if (transaction == null)
-    //            {
-    //                return new ApiResponse<TransactionDTO>
-    //                {
-    //                    Success = false,
-    //                    MessageId = MessageId.E0000,
-    //                    Message = "Transaction not found"
-    //                };
-    //            }
+            await _transactionRepository.AddAsync(newTransaction);
+            await _transactionRepository.SaveChangesAsync();
 
-    //            var transactionDTO = new TransactionDTO
-    //            {
-    //                Id = transaction.Id,
-    //                SellerPackageId = transaction.SellerPackageId,
-    //                SellerPackageName = transaction.SellerPackage.Name,
-    //                CompanyId = transaction.CompanyId,
-    //                CompanyName = transaction.Company.Name,
-    //                TransactionCode = transaction.TransactionCode,
-    //                Amount = transaction.Amount,
-    //                PaymentType = transaction.PaymentType,
-    //                CreatedAt = transaction.CreatedAt,
-    //                IsDeleted = transaction.IsDeleted
-    //            };
+            PaymentData paymentData = new PaymentData(long.Parse(newTransaction.TransactionCode), (int)newTransaction.Amount, "Thanh toan don hang",
+                 items, cancelUrl, returnUrl);
 
-    //            return new ApiResponse<TransactionDTO>
-    //            {
-    //                Data = transactionDTO,
-    //                Success = true,
-    //                MessageId = MessageId.I0000,
-    //                Message = Message.GetMessageById(MessageId.I0000)
-    //            };
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            return new ApiResponse<TransactionDTO>
-    //            {
-    //                Success = false,
-    //                MessageId = MessageId.E0000,
-    //                Message = $"An error occurred while retrieving the transaction: {ex.Message}"
-    //            };
-    //        }
-    //    }
+            CreatePaymentResult createPayment = await _payOS.createPaymentLink(paymentData);
 
-    //    public async Task<ApiResponse<IEnumerable<TransactionDTO>>> GetByCompanyIdAsync(Guid companyId)
-    //    {
-    //        try
-    //        {
-    //            var transactions = await _context.Transactions
-    //                .Include(t => t.SellerPackage)
-    //                .Include(t => t.Company)
-    //                .Where(t => t.CompanyId == companyId && !t.IsDeleted)
-    //                .Select(t => new TransactionDTO
-    //                {
-    //                    Id = t.Id,
-    //                    SellerPackageId = t.SellerPackageId,
-    //                    SellerPackageName = t.SellerPackage.Name,
-    //                    CompanyId = t.CompanyId,
-    //                    CompanyName = t.Company.Name,
-    //                    TransactionCode = t.TransactionCode,
-    //                    Amount = t.Amount,
-    //                    PaymentType = t.PaymentType,
-    //                    CreatedAt = t.CreatedAt,
-    //                    IsDeleted = t.IsDeleted
-    //                })
-    //                .ToListAsync();
+            var response = new ApiResponse<PaymentResponse>
+            {
+                Data = new PaymentResponse
+                {
+                    CheckoutUrl = createPayment.checkoutUrl,
+                },
+                Success = true,
+                MessageId = MessageId.I0000,
+                Message = Message.GetMessageById(MessageId.I0000)
+            };
 
-    //            return new ApiResponse<IEnumerable<TransactionDTO>>
-    //            {
-    //                Data = transactions,
-    //                Success = true,
-    //                MessageId = MessageId.I0000,
-    //                Message = Message.GetMessageById(MessageId.I0000)
-    //            };
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            return new ApiResponse<IEnumerable<TransactionDTO>>
-    //            {
-    //                Success = false,
-    //                MessageId = MessageId.E0000,
-    //                Message = $"An error occurred while retrieving transactions: {ex.Message}"
-    //            };
-    //        }
-    //    }
+            return response;
+        }
 
-    //    public async Task<ApiResponse<IEnumerable<TransactionDTO>>> GetBySellerPackageIdAsync(Guid sellerPackageId)
-    //    {
-    //        try
-    //        {
-    //            var transactions = await _context.Transactions
-    //                .Include(t => t.SellerPackage)
-    //                .Include(t => t.Company)
-    //                .Where(t => t.SellerPackageId == sellerPackageId && !t.IsDeleted)
-    //                .Select(t => new TransactionDTO
-    //                {
-    //                    Id = t.Id,
-    //                    SellerPackageId = t.SellerPackageId,
-    //                    SellerPackageName = t.SellerPackage.Name,
-    //                    CompanyId = t.CompanyId,
-    //                    CompanyName = t.Company.Name,
-    //                    TransactionCode = t.TransactionCode,
-    //                    Amount = t.Amount,
-    //                    PaymentType = t.PaymentType,
-    //                    CreatedAt = t.CreatedAt,
-    //                    IsDeleted = t.IsDeleted
-    //                })
-    //                .ToListAsync();
+        public async Task<ApiResponse<TransactionDTO>> CreateAsync(CreateTransactionDTO createTransactionDTO)
+        {
+            try
+            {
+                // Validate SellerPackage exists
+                var sellerPackage = await _sellerPackageRepository.GetByIdAsync(createTransactionDTO.SellerPackageId);
+                if (sellerPackage == null)
+                {
+                    return new ApiResponse<TransactionDTO>
+                    {
+                        Success = false,
+                        MessageId = MessageId.E0000,
+                        Message = "SellerPackage not found"
+                    };
+                }
 
-    //            return new ApiResponse<IEnumerable<TransactionDTO>>
-    //            {
-    //                Data = transactions,
-    //                Success = true,
-    //                MessageId = MessageId.I0000,
-    //                Message = Message.GetMessageById(MessageId.I0000)
-    //            };
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            return new ApiResponse<IEnumerable<TransactionDTO>>
-    //            {
-    //                Success = false,
-    //                MessageId = MessageId.E0000,
-    //                Message = $"An error occurred while retrieving transactions: {ex.Message}"
-    //            };
-    //        }
-    //    }
+                // Validate Company exists
+                var company = await _companyRepository.GetByIdAsync(createTransactionDTO.CompanyId);
+                if (company == null)
+                {
+                    return new ApiResponse<TransactionDTO>
+                    {
+                        Success = false,
+                        MessageId = MessageId.E0000,
+                        Message = "Company not found"
+                    };
+                }
 
-    //    public async Task<ApiResponse<IEnumerable<TransactionDTO>>> GetByDateRangeAsync(DateTime startDate, DateTime endDate)
-    //    {
-    //        try
-    //        {
-    //            var transactions = await _context.Transactions
-    //                .Include(t => t.SellerPackage)
-    //                .Include(t => t.Company)
-    //                .Where(t => t.CreatedAt >= startDate && t.CreatedAt <= endDate && !t.IsDeleted)
-    //                .Select(t => new TransactionDTO
-    //                {
-    //                    Id = t.Id,
-    //                    SellerPackageId = t.SellerPackageId,
-    //                    SellerPackageName = t.SellerPackage.Name,
-    //                    CompanyId = t.CompanyId,
-    //                    CompanyName = t.Company.Name,
-    //                    TransactionCode = t.TransactionCode,
-    //                    Amount = t.Amount,
-    //                    PaymentType = t.PaymentType,
-    //                    CreatedAt = t.CreatedAt,
-    //                    IsDeleted = t.IsDeleted
-    //                })
-    //                .ToListAsync();
+                // Business logic: Check if company has sufficient balance
+                if (createTransactionDTO.Amount > 1000000) // Example business rule
+                {
+                    return new ApiResponse<TransactionDTO>
+                    {
+                        Success = false,
+                        MessageId = MessageId.E0000,
+                        Message = "Transaction amount exceeds limit"
+                    };
+                }
 
-    //            return new ApiResponse<IEnumerable<TransactionDTO>>
-    //            {
-    //                Data = transactions,
-    //                Success = true,
-    //                MessageId = MessageId.I0000,
-    //                Message = Message.GetMessageById(MessageId.I0000)
-    //            };
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            return new ApiResponse<IEnumerable<TransactionDTO>>
-    //            {
-    //                Success = false,
-    //                MessageId = MessageId.E0000,
-    //                Message = $"An error occurred while retrieving transactions: {ex.Message}"
-    //            };
-    //        }
-    //    }
+                var transaction = new TransactionEntity
+                {
+                    Id = Guid.NewGuid(),
+                    SellerPackageId = createTransactionDTO.SellerPackageId,
+                    CompanyId = createTransactionDTO.CompanyId,
+                    TransactionCode = GenerateTransactionCode(),
+                    Amount = createTransactionDTO.Amount,
+                    PaymentType = createTransactionDTO.PaymentType,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    IsDeleted = false
+                };
 
-    //    public async Task<ApiResponse<decimal>> GetTotalRevenueAsync(Guid companyId)
-    //    {
-    //        try
-    //        {
-    //            var totalRevenue = await _context.Transactions
-    //                .Where(t => t.CompanyId == companyId && !t.IsDeleted)
-    //                .SumAsync(t => t.Amount);
+                await _transactionRepository.AddAsync(transaction);
+                await _transactionRepository.SaveChangesAsync();
 
-    //            return new ApiResponse<decimal>
-    //            {
-    //                Data = totalRevenue,
-    //                Success = true,
-    //                MessageId = MessageId.I0000,
-    //                Message = Message.GetMessageById(MessageId.I0000)
-    //            };
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            return new ApiResponse<decimal>
-    //            {
-    //                Success = false,
-    //                MessageId = MessageId.E0000,
-    //                Message = $"An error occurred while calculating revenue: {ex.Message}"
-    //            };
-    //        }
-    //    }
+                var transactionDTO = new TransactionDTO
+                {
+                    Id = transaction.Id,
+                    SellerPackageId = transaction.SellerPackageId,
+                    SellerPackageName = sellerPackage.Name,
+                    CompanyId = transaction.CompanyId,
+                    CompanyName = company.Name,
+                    TransactionCode = transaction.TransactionCode,
+                    Amount = transaction.Amount,
+                    PaymentType = transaction.PaymentType,
+                    CreatedAt = transaction.CreatedAt,
+                    IsDeleted = transaction.IsDeleted
+                };
 
-    //    public async Task<ApiResponse<string>> CancelTransactionAsync(Guid id)
-    //    {
-    //        try
-    //        {
-    //            var transaction = await _context.Transactions
-    //                .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
+                return new ApiResponse<TransactionDTO>
+                {
+                    Data = transactionDTO,
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = Message.GetMessageById(MessageId.I0000)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<TransactionDTO>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = $"An error occurred while creating the transaction: {ex.Message}"
+                };
+            }
+        }
 
-    //            if (transaction == null)
-    //            {
-    //                return new ApiResponse<string>
-    //                {
-    //                    Success = false,
-    //                    MessageId = MessageId.E0000,
-    //                    Message = "Transaction not found"
-    //                };
-    //            }
+        public async Task<ApiResponse<IEnumerable<TransactionDTO>>> GetAllAsync()
+        {
+            try
+            {
+                var transactions = await _transactionRepository.GetAllAsync();
 
-    //            // Business logic: Check if transaction can be cancelled (within 24 hours)
-    //            if (DateTime.UtcNow.Subtract(transaction.CreatedAt).TotalHours > 24)
-    //            {
-    //                return new ApiResponse<string>
-    //                {
-    //                    Success = false,
-    //                    MessageId = MessageId.E0000,
-    //                    Message = "Transaction cannot be cancelled after 24 hours"
-    //                };
-    //            }
+                var transactionDtos = transactions.Select(t => new TransactionDTO
+                {
+                    Id = t.Id,
+                    SellerPackageId = t.SellerPackageId,
+                    SellerPackageName = t.SellerPackage?.Name,
+                    CompanyId = t.CompanyId,
+                    CompanyName = t.Company?.Name,
+                    TransactionCode = t.TransactionCode,
+                    Amount = t.Amount,
+                    PaymentType = t.PaymentType,
+                    CreatedAt = t.CreatedAt,
+                    IsDeleted = t.IsDeleted
+                }).ToList();
 
-    //            transaction.IsDeleted = true;
-    //            transaction.UpdatedAt = DateTime.UtcNow;
-    //            await _context.SaveChangesAsync();
+                return new ApiResponse<IEnumerable<TransactionDTO>>
+                {
+                    Data = transactionDtos,
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = Message.GetMessageById(MessageId.I0000)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<IEnumerable<TransactionDTO>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = $"An error occurred while retrieving transactions: {ex.Message}"
+                };
+            }
+        }
 
-    //            return new ApiResponse<string>
-    //            {
-    //                Success = true,
-    //                MessageId = MessageId.I0000,
-    //                Message = "Transaction cancelled successfully"
-    //            };
-    //        }
-    //        catch (Exception ex)
-    //        {
-    //            return new ApiResponse<string>
-    //            {
-    //                Success = false,
-    //                MessageId = MessageId.E0000,
-    //                Message = $"An error occurred while cancelling the transaction: {ex.Message}"
-    //            };
-    //        }
-    //    }
+        public async Task<ApiResponse<TransactionDTO>> GetByIdAsync(Guid id)
+        {
+            try
+            {
+                var transaction = await _transactionRepository.GetByIdAsync(id);
 
-    //    private string GenerateTransactionCode()
-    //    {
-    //        return $"TXN{DateTime.UtcNow:yyyyMMddHHmmss}{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
-    //    }
-    //}
+                if (transaction == null)
+                {
+                    return new ApiResponse<TransactionDTO>
+                    {
+                        Success = false,
+                        MessageId = MessageId.E0000,
+                        Message = "Transaction not found"
+                    };
+                }
+
+                var transactionDTO = new TransactionDTO
+                {
+                    Id = transaction.Id,
+                    SellerPackageId = transaction.SellerPackageId,
+                    SellerPackageName = transaction.SellerPackage.Name,
+                    CompanyId = transaction.CompanyId,
+                    CompanyName = transaction.Company.Name,
+                    TransactionCode = transaction.TransactionCode,
+                    Amount = transaction.Amount,
+                    PaymentType = transaction.PaymentType,
+                    CreatedAt = transaction.CreatedAt,
+                    IsDeleted = transaction.IsDeleted
+                };
+
+                return new ApiResponse<TransactionDTO>
+                {
+                    Data = transactionDTO,
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = Message.GetMessageById(MessageId.I0000)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<TransactionDTO>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = $"An error occurred while retrieving the transaction: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<ApiResponse<IEnumerable<TransactionDTO>>> GetByCompanyIdAsync(Guid companyId)
+        {
+            try
+            {
+                var transactions = await _transactionRepository.GetByCompanyIdAsync(companyId);
+
+                var transactionDtos = transactions.Select(t => new TransactionDTO
+                {
+                    Id = t.Id,
+                    SellerPackageId = t.SellerPackageId,
+                    SellerPackageName = t.SellerPackage?.Name,
+                    CompanyId = t.CompanyId,
+                    CompanyName = t.Company?.Name,
+                    TransactionCode = t.TransactionCode,
+                    Amount = t.Amount,
+                    PaymentType = t.PaymentType,
+                    CreatedAt = t.CreatedAt,
+                    IsDeleted = t.IsDeleted
+                }).ToList();
+
+                return new ApiResponse<IEnumerable<TransactionDTO>>
+                {
+                    Data = transactionDtos,
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = Message.GetMessageById(MessageId.I0000)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<IEnumerable<TransactionDTO>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = $"An error occurred while retrieving transactions: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<ApiResponse<IEnumerable<TransactionDTO>>> GetBySellerPackageIdAsync(Guid sellerPackageId)
+        {
+            try
+            {
+                var transactions = await _transactionRepository.GetBySellerPackageIdAsync(sellerPackageId);
+
+                var transactionDtos = transactions.Select(t => new TransactionDTO
+                {
+                    Id = t.Id,
+                    SellerPackageId = t.SellerPackageId,
+                    SellerPackageName = t.SellerPackage?.Name,
+                    CompanyId = t.CompanyId,
+                    CompanyName = t.Company?.Name,
+                    TransactionCode = t.TransactionCode,
+                    Amount = t.Amount,
+                    PaymentType = t.PaymentType,
+                    CreatedAt = t.CreatedAt,
+                    IsDeleted = t.IsDeleted
+                }).ToList();
+
+                return new ApiResponse<IEnumerable<TransactionDTO>>
+                {
+                    Data = transactionDtos,
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = Message.GetMessageById(MessageId.I0000)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<IEnumerable<TransactionDTO>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = $"An error occurred while retrieving transactions: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<ApiResponse<IEnumerable<TransactionDTO>>> GetByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var transactions = await _transactionRepository.GetByDateRangeAsync(startDate, endDate);
+
+                var transactionDtos = transactions.Select(t => new TransactionDTO
+                {
+                    Id = t.Id,
+                    SellerPackageId = t.SellerPackageId,
+                    SellerPackageName = t.SellerPackage?.Name,
+                    CompanyId = t.CompanyId,
+                    CompanyName = t.Company?.Name,
+                    TransactionCode = t.TransactionCode,
+                    Amount = t.Amount,
+                    PaymentType = t.PaymentType,
+                    CreatedAt = t.CreatedAt,
+                    IsDeleted = t.IsDeleted
+                }).ToList();
+
+                return new ApiResponse<IEnumerable<TransactionDTO>>
+                {
+                    Data = transactionDtos,
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = Message.GetMessageById(MessageId.I0000)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<IEnumerable<TransactionDTO>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = $"An error occurred while retrieving transactions: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<ApiResponse<decimal>> GetTotalRevenueAsync(Guid companyId)
+        {
+            try
+            {
+                var totalRevenue = await _transactionRepository.GetTotalRevenueAsync(companyId);
+
+                return new ApiResponse<decimal>
+                {
+                    Data = totalRevenue,
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = Message.GetMessageById(MessageId.I0000)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<decimal>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = $"An error occurred while calculating revenue: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<ApiResponse<string>> CancelTransactionAsync(Guid id)
+        {
+            try
+            {
+                var transaction = await _transactionRepository.GetByIdAsync(id);
+
+                if (transaction == null)
+                {
+                    return new ApiResponse<string>
+                    {
+                        Success = false,
+                        MessageId = MessageId.E0000,
+                        Message = "Transaction not found"
+                    };
+                }
+
+                // Business logic: Check if transaction can be cancelled (within 24 hours)
+                if (DateTime.UtcNow.Subtract(transaction.CreatedAt).TotalHours > 24)
+                {
+                    return new ApiResponse<string>
+                    {
+                        Success = false,
+                        MessageId = MessageId.E0000,
+                        Message = "Transaction cannot be cancelled after 24 hours"
+                    };
+                }
+
+                transaction.IsDeleted = true;
+                transaction.UpdatedAt = DateTime.UtcNow;
+                await _transactionRepository.SaveChangesAsync();
+
+                return new ApiResponse<string>
+                {
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = "Transaction cancelled successfully"
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<string>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = $"An error occurred while cancelling the transaction: {ex.Message}"
+                };
+            }
+        }
+
+        public async Task<ApiResponse<string>> CreatePayOSPaymentAsync(CreatePayOSPaymentRequestDto dto)
+        {
+            // Validate SellerPackage exists
+            var sellerPackage = await _sellerPackageRepository.GetByIdAsync(dto.PackageId);
+            if (sellerPackage == null)
+            {
+                return new ApiResponse<string>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = "SellerPackage not found"
+                };
+            }
+            // Gọi PayOSService để tạo giao dịch
+            var payUrl = await _payOSService.CreatePaymentAsync(dto);
+            return new ApiResponse<string>
+            {
+                Data = payUrl,
+                Success = true,
+                MessageId = MessageId.I0000,
+                Message = Message.GetMessageById(MessageId.I0000)
+            };
+        }
+
+        private string GenerateTransactionCode()
+        {
+            return $"TXN{DateTime.UtcNow:yyyyMMddHHmmss}{Guid.NewGuid().ToString().Substring(0, 8).ToUpper()}";
+        }
+    }
 } 

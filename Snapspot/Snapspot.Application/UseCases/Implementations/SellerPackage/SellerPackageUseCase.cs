@@ -44,22 +44,22 @@ namespace Snapspot.Application.UseCases.Implementations.SellerPackage
                     IsDeleted = sellerPackage.IsDeleted,
                     CreatedAt = sellerPackage.CreatedAt,
                     UpdatedAt = sellerPackage.UpdatedAt,
-                    Companies = sellerPackage.Companies?.Select(c => new Models.Companies.CompanyDto
+                    Companies = sellerPackage.CompanySellerPackages?.Select(csp => new Models.Companies.CompanyDto
                     {
-                        Id = c.Id,
-                        Name = c.Name,
-                        Address = c.Address,
-                        Email = c.Email,
-                        PhoneNumber = c.PhoneNumber,
-                        AvatarUrl = c.AvatarUrl,
-                        PdfUrl = c.PdfUrl,
-                        Rating = c.Rating,
-                        IsApproved = c.IsApproved,
-                        UserId = c.UserId,
-                        UserName = c.User?.Fullname ?? "",
-                        CreatedAt = c.CreatedAt,
-                        UpdatedAt = c.UpdatedAt,
-                        IsDeleted = c.IsDeleted
+                        Id = csp.Company.Id,
+                        Name = csp.Company.Name,
+                        Address = csp.Company.Address,
+                        Email = csp.Company.Email,
+                        PhoneNumber = csp.Company.PhoneNumber,
+                        AvatarUrl = csp.Company.AvatarUrl,
+                        PdfUrl = csp.Company.PdfUrl,
+                        Rating = csp.Company.Rating,
+                        IsApproved = csp.Company.IsApproved,
+                        UserId = csp.Company.UserId,
+                        UserName = csp.Company.User?.Fullname ?? "",
+                        CreatedAt = csp.Company.CreatedAt,
+                        UpdatedAt = csp.Company.UpdatedAt,
+                        IsDeleted = csp.Company.IsDeleted
                     }).ToList() ?? new List<Models.Companies.CompanyDto>()
                 };
 
@@ -99,22 +99,22 @@ namespace Snapspot.Application.UseCases.Implementations.SellerPackage
                     IsDeleted = sp.IsDeleted,
                     CreatedAt = sp.CreatedAt,
                     UpdatedAt = sp.UpdatedAt,
-                    Companies = sp.Companies?.Select(c => new Models.Companies.CompanyDto
+                    Companies = sp.CompanySellerPackages?.Select(csp => new Models.Companies.CompanyDto
                     {
-                        Id = c.Id,
-                        Name = c.Name,
-                        Address = c.Address,
-                        Email = c.Email,
-                        PhoneNumber = c.PhoneNumber,
-                        AvatarUrl = c.AvatarUrl,
-                        PdfUrl = c.PdfUrl,
-                        Rating = c.Rating,
-                        IsApproved = c.IsApproved,
-                        UserId = c.UserId,
-                        UserName = c.User?.Fullname ?? "",
-                        CreatedAt = c.CreatedAt,
-                        UpdatedAt = c.UpdatedAt,
-                        IsDeleted = c.IsDeleted
+                        Id = csp.Company.Id,
+                        Name = csp.Company.Name,
+                        Address = csp.Company.Address,
+                        Email = csp.Company.Email,
+                        PhoneNumber = csp.Company.PhoneNumber,
+                        AvatarUrl = csp.Company.AvatarUrl,
+                        PdfUrl = csp.Company.PdfUrl,
+                        Rating = csp.Company.Rating,
+                        IsApproved = csp.Company.IsApproved,
+                        UserId = csp.Company.UserId,
+                        UserName = csp.Company.User?.Fullname ?? "",
+                        CreatedAt = csp.Company.CreatedAt,
+                        UpdatedAt = csp.Company.UpdatedAt,
+                        IsDeleted = csp.Company.IsDeleted
                     }).ToList() ?? new List<Models.Companies.CompanyDto>()
                 }).ToList();
 
@@ -278,22 +278,22 @@ namespace Snapspot.Application.UseCases.Implementations.SellerPackage
                     IsDeleted = sellerPackage.IsDeleted,
                     CreatedAt = sellerPackage.CreatedAt,
                     UpdatedAt = sellerPackage.UpdatedAt,
-                    Companies = sellerPackage.Companies?.Select(c => new Models.Companies.CompanyDto
+                    Companies = sellerPackage.CompanySellerPackages?.Select(csp => new Models.Companies.CompanyDto
                     {
-                        Id = c.Id,
-                        Name = c.Name,
-                        Address = c.Address,
-                        Email = c.Email,
-                        PhoneNumber = c.PhoneNumber,
-                        AvatarUrl = c.AvatarUrl,
-                        PdfUrl = c.PdfUrl,
-                        Rating = c.Rating,
-                        IsApproved = c.IsApproved,
-                        UserId = c.UserId,
-                        UserName = c.User?.Fullname ?? "",
-                        CreatedAt = c.CreatedAt,
-                        UpdatedAt = c.UpdatedAt,
-                        IsDeleted = c.IsDeleted
+                        Id = csp.Company.Id,
+                        Name = csp.Company.Name,
+                        Address = csp.Company.Address,
+                        Email = csp.Company.Email,
+                        PhoneNumber = csp.Company.PhoneNumber,
+                        AvatarUrl = csp.Company.AvatarUrl,
+                        PdfUrl = csp.Company.PdfUrl,
+                        Rating = csp.Company.Rating,
+                        IsApproved = csp.Company.IsApproved,
+                        UserId = csp.Company.UserId,
+                        UserName = csp.Company.User?.Fullname ?? "",
+                        CreatedAt = csp.Company.CreatedAt,
+                        UpdatedAt = csp.Company.UpdatedAt,
+                        IsDeleted = csp.Company.IsDeleted
                     }).ToList() ?? new List<Models.Companies.CompanyDto>()
                 };
 

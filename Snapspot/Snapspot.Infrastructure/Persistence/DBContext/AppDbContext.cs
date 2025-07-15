@@ -19,6 +19,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
         public DbSet<Province> Provinces { get; set; }
         public DbSet<AgencyService> AgencyServices { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<CompanySellerPackage> CompanySellerPackages { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -125,11 +126,32 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
 
                 entity.Property(sp => sp.UpdatedAt)
                       .HasColumnType("datetime");
-
-                entity.HasMany(sp => sp.Companies)
-                      .WithMany(c => c.SellerPackages)
-                      .UsingEntity(j => j.ToTable("CompanySellerPackage"));
             });
+
+
+            modelBuilder.Entity<CompanySellerPackage>(entity =>
+            {
+                entity.ToTable("CompanySellerPackage");
+                    
+                entity.HasKey(x => new { x.CompaniesId, x.SellerPackagesId });
+
+                entity.HasOne(x => x.Company)
+                      .WithMany(c => c.CompanySellerPackages)
+                      .HasForeignKey(x => x.CompaniesId);
+
+                entity.HasOne(x => x.SellerPackage)
+                      .WithMany(sp => sp.CompanySellerPackages)
+                      .HasForeignKey(x => x.SellerPackagesId);
+
+                entity.Property(x => x.RemainingDay)
+                      .IsRequired();
+
+                entity.Property(x => x.IsActive)
+                      .HasDefaultValue(true);
+            });
+
+
+
 
             modelBuilder.Entity<RefreshToken>().ToTable("RefreshToken");
             modelBuilder.Entity<RefreshToken>(entity =>

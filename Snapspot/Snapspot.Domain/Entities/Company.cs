@@ -17,14 +17,14 @@ namespace Snapspot.Domain.Entities
         public Guid UserId { get; set; }
         public virtual User User { get; set; }
         public virtual ICollection<Agency> Agencies { get; set; }
-        public virtual ICollection<SellerPackage> SellerPackages { get; set; }
         public virtual ICollection<Transaction> Transactions { get; set; }
+        public virtual ICollection<CompanySellerPackage> CompanySellerPackages { get; set; }
 
         public Company()
         {
             Agencies = new HashSet<Agency>();
-            SellerPackages = new HashSet<SellerPackage>();
             Transactions = new HashSet<Transaction>();
+            CompanySellerPackages = new HashSet<CompanySellerPackage>();
         }
     }
 } 

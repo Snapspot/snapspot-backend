@@ -17,7 +17,7 @@ namespace Snapspot.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Company> GetByIdAsync(Guid id)
+        public async Task<Company?> GetByIdAsync(Guid id)
         {
             return await _context.Set<Company>()
                 .Include(c => c.User)
@@ -28,7 +28,7 @@ namespace Snapspot.Infrastructure.Repositories
                 .Include(c => c.Agencies)
                     .ThenInclude(a => a.Feedbacks)
                         .ThenInclude(f => f.User)
-                .Include(c => c.SellerPackages)
+                .Include(c => c.CompanySellerPackages)
                 .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
         }
 
@@ -43,7 +43,7 @@ namespace Snapspot.Infrastructure.Repositories
                 .Include(c => c.Agencies)
                     .ThenInclude(a => a.Feedbacks)
                         .ThenInclude(f => f.User)
-                .Include(c => c.SellerPackages)
+                .Include(c => c.CompanySellerPackages)
                 .Where(c => !c.IsDeleted)
                 .ToListAsync();
         }

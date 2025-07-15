@@ -11,6 +11,7 @@ using Snapspot.WebAPI.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Net.payOS;
 
 namespace Snapspot.WebAPI
 {
@@ -18,7 +19,15 @@ namespace Snapspot.WebAPI
     {
         public static void Main(string[] args)
         {
+
+            IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+
+            PayOS payOS = new PayOS(configuration["Environment:PAYOS_CLIENT_ID"] ?? throw new Exception("Cannot find environment"),
+                    configuration["Environment:PAYOS_API_KEY"] ?? throw new Exception("Cannot find environment"),
+                    configuration["Environment:PAYOS_CHECKSUM_KEY"] ?? throw new Exception("Cannot find environment"));
+
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddSingleton(payOS);
 
             // Add services to the container.
             _ = builder.Services.AddApplication();
