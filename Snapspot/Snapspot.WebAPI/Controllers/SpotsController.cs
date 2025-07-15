@@ -1,3 +1,4 @@
+using Azure.Core;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,26 @@ namespace Snapspot.WebAPI.Controllers
         {
             _spotUseCase = spotUseCase;
         }
+
+        [HttpGet("distance")]
+        public async Task<IActionResult> GetAllWithDistance([FromQuery] double latitude, [FromQuery] double longitude)
+        {
+            try
+            {
+                var result = await _spotUseCase.GetAllWithDistanceAsync(latitude, longitude);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<IEnumerable<SpotDto>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = ex.Message
+                });
+            }
+        }
+
 
         [HttpGet]
         public async Task<ActionResult<ApiResponse<IEnumerable<SpotDto>>>> GetAll()

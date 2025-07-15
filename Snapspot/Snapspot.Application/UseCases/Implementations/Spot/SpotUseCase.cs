@@ -1,3 +1,4 @@
+using Snapspot.Application.Models.Responses.Spot;
 using Snapspot.Application.Models.Spots;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.UseCases.Interfaces.Spot;
@@ -516,6 +517,73 @@ namespace Snapspot.Application.UseCases.Implementations.Spot
                     Message = $"An error occurred: {ex.Message}"
                 };
             }
+        }
+
+        public async Task<ApiResponse<IEnumerable<GetAllSpotWithDistanceReponse>>> GetAllWithDistanceAsync(double ulat, double ulon)
+        {
+            try
+            {
+                var spots = await _spotRepository.GetAllAsync();
+
+                var result = spots
+                    .Where(s => s.Latitude.HasValue && s.Longitude.HasValue)
+                    .Select(s => new GetAllSpotWithDistanceReponse
+                    {
+                        Id = s.Id,
+                        Name = s.Name,
+                        Description = s.Description,
+                        Latitude = s.Latitude,
+                        Longitude = s.Longitude,
+                        DistrictId = s.DistrictId,
+                        DistrictName = s.District?.Name ?? "",
+                        ProvinceName = s.District?.Province?.Name ?? "",
+                        Address = s.Address,
+                        ImageUrl = s.ImageUrl,
+                        CreatedAt = s.CreatedAt ,
+                        UpdatedAt = s.UpdatedAt,
+                        IsDeleted = s.IsDeleted,
+                        Distance = (decimal?)Haversine(ulat, ulon, s.Latitude.Value, s.Longitude.Value)
+                    })
+                    .OrderBy(s => s.Distance)
+                    .ToList();
+
+                return new ApiResponse<IEnumerable<GetAllSpotWithDistanceReponse>>
+                {
+                    Data = result,
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = Message.GetMessageById(MessageId.I0000)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<IEnumerable<GetAllSpotWithDistanceReponse>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000,
+                    Message = $"An error occurred: {ex.Message}"
+                };
+            }
+        }
+
+        private static double Haversine(double lat1, double lon1, double lat2, double lon2)
+        {
+            double R = 6371; // km
+            double dLat = DegreesToRadians(lat2 - lat1);
+            double dLon = DegreesToRadians(lon2 - lon1);
+
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                       Math.Cos(DegreesToRadians(lat1)) * Math.Cos(DegreesToRadians(lat2)) *
+                       Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            var km = R * c;
+            return km + km*10/100;
+        }
+
+        private static double DegreesToRadians(double degrees)
+        {
+            return degrees * Math.PI / 180;
         }
     }
 } 
