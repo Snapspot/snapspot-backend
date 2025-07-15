@@ -23,8 +23,8 @@ namespace Snapspot.WebAPI.Controllers
     {
         private readonly ITransactionUseCase _transactionUseCase;
         private readonly PayOS _payOS;
-        private ILogger _logger;
-        public TransactionController(ITransactionUseCase transactionUseCase, PayOS payOS, ILogger logger)
+        private ILogger<TransactionController> _logger;
+        public TransactionController(ITransactionUseCase transactionUseCase, PayOS payOS, ILogger<TransactionController> logger)
         {
             _transactionUseCase = transactionUseCase;
             _payOS = payOS;
