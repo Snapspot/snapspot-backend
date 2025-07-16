@@ -15,14 +15,16 @@ namespace Snapspot.Application.UseCases.Implementations.ThirdParty
         private readonly ICompanyRepository _companyRepository;
         private readonly ISellerPackageRepository _sellerPackageRepository;
         private readonly IFeedbackRepository _feedbackRepository;
+        private readonly ICompanySellerPackageRepository _companySellerPackageRepository;
 
-        public ThirdPartyUseCase(IAgencyRepository agencyRepository, IUserRepository userRepository, ICompanyRepository companyRepository, ISellerPackageRepository sellerPackageRepository, IFeedbackRepository feedbackRepository)
+        public ThirdPartyUseCase(IAgencyRepository agencyRepository, IUserRepository userRepository, ICompanyRepository companyRepository, ISellerPackageRepository sellerPackageRepository, IFeedbackRepository feedbackRepository, ICompanySellerPackageRepository companySellerPackageRepository)
         {
             _agencyRepository = agencyRepository;
             _userRepository = userRepository;
             _companyRepository = companyRepository;
             _sellerPackageRepository = sellerPackageRepository;
             _feedbackRepository = feedbackRepository;
+            _companySellerPackageRepository = companySellerPackageRepository;
         }
 
         public async Task<ApiResponse<List<GetThirdPartyAgencyResponse>>> GetAgencies(string? userId)
@@ -131,13 +133,29 @@ namespace Snapspot.Application.UseCases.Implementations.ThirdParty
                 };
             }
 
+            var csp = await GetTopCompanySellerPackage(company);
+
+            if (csp == null)
+            {
+                return new ApiResponse<GetSerllerPackageInfor>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0020,
+                    Message = "Công ty chưa có đăng ký bất kì gói nào"
+                };
+            }
+
+            var currentAgency = await _agencyRepository.GetCurrentActiveAgency(company.Id);
+
             var info = new GetSerllerPackageInfor()
             {
-                PackageName = "API chưa code xong",
+                PackageId = csp.SellerPackage.Id,
+                PackageName = csp.SellerPackage.Name,
                 PackageImageUrl = "https://th.bing.com/th/id/OIP.NcAupDjIQDZzrnMh0yY2bAHaHT?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3",
-                CurrentAgency = 1,
-                TotalAgency = 1,
-                RemainingDay = 30
+                CurrentAgency = currentAgency,
+                TotalAgency = csp.SellerPackage.MaxAgency,
+                RemainingDay = csp.RemainingDay,
+                ReachedPeople = 100
             };
 
             return new ApiResponse<GetSerllerPackageInfor>
@@ -197,6 +215,12 @@ namespace Snapspot.Application.UseCases.Implementations.ThirdParty
             if(user == null) return null;
             var company = await _companyRepository.GetByUserIdAsync(user.Id);
             return company;
+        }
+
+        private async Task<Domain.Entities.CompanySellerPackage?> GetTopCompanySellerPackage(Domain.Entities.Company company)
+        {
+            var csp = await _companySellerPackageRepository.GetSubcriptionHasHighestAgency(company.Id);
+            return csp;
         }
     }
 }
