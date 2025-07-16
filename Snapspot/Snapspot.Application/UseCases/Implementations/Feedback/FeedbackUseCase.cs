@@ -176,7 +176,7 @@ namespace Snapspot.Application.UseCases.Implementations.Feedback
 
                 // Business logic: Check if user has already reviewed this agency
                 var allFeedbacks = await _feedbackRepository.GetAllAsync();
-                var existingFeedback = allFeedbacks.FirstOrDefault(f => f.UserId == createFeedbackDto.UserId && f.AgencyId == createFeedbackDto.AgencyId);
+                var existingFeedback = allFeedbacks.FirstOrDefault(f => f.UserId == currentUserId && f.AgencyId == createFeedbackDto.AgencyId);
                 if (existingFeedback != null)
                 {
                     return new ApiResponse<FeedbackDto>
@@ -193,7 +193,7 @@ namespace Snapspot.Application.UseCases.Implementations.Feedback
                     Content = createFeedbackDto.Content,
                     Rating = createFeedbackDto.Rating,
                     AgencyId = createFeedbackDto.AgencyId,
-                    UserId = createFeedbackDto.UserId,
+                    UserId = currentUserId,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     IsDeleted = false

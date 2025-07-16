@@ -98,5 +98,22 @@ namespace Snapspot.WebAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        [HttpGet("profile")]
+        [Authorize] 
+        public async Task<IActionResult> GetProfile()
+        {
+            
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out Guid userId))
+            {
+                return Unauthorized();
+            }
+
+            var result = await _userUseCase.GetByIdAsync(userId);
+            if (result == null || !result.Success)
+                return NotFound();
+
+            return Ok(result);
+        }
     }
 } 

@@ -15,8 +15,5 @@ namespace Snapspot.Application.Models.Agencies
 
         [Required(ErrorMessage = "ID đại lý là bắt buộc")]
         public Guid AgencyId { get; set; }
-
-        [Required(ErrorMessage = "UserId là bắt buộc")]
-        public Guid UserId { get; set; }
     }
 } 

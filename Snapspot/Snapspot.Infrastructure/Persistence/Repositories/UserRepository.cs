@@ -21,6 +21,13 @@ namespace Snapspot.Infrastructure.Persistence.Repositories
             return await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email) != null;
         }
 
+        public async Task<User?> GetByIdWithRoleAsync(Guid userId)
+        {
+            return await _context.Users
+         .Include(u => u.Role)
+         .FirstOrDefaultAsync(u => u.Id == userId);
+        }
+
         public async Task<User?> GetByUserIdAsync(Guid userId)
         {
             return await _context.Users.AsNoTracking().Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == userId && !x.IsDeleted);

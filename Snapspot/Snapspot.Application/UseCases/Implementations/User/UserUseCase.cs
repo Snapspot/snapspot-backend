@@ -77,9 +77,30 @@ namespace Snapspot.Application.UseCases.Implementations.User
             return ApiResponse<PagingResponse<GetUserResponse>>.Ok(data); ;
         }
 
-        public Task<ApiResponse<GetUserResponse>> GetByIdAsync(Guid userId)
+        public async Task<ApiResponse<GetUserResponse>> GetByIdAsync(Guid userId)
         {
-            throw new NotImplementedException();
+            // Lấy user từ repository, bao gồm cả Role
+           
+            var user = await _userRepository.GetByIdWithRoleAsync(userId);
+            // Kiểm tra user có tồn tại và chưa bị xóa không
+            if (user == null || user.IsDeleted)
+            {
+                return ApiResponse<GetUserResponse>.Fail(MessageId.E0005);
+            }
+
+            // Map sang response
+            var response = new GetUserResponse
+            {
+                UserId = user.Id,
+                FullName = user.Fullname,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Dob = user.Dob,
+                RoleId = user.RoleId,
+                RoleName = user.Role?.Name // Có thể null nếu không include Role
+            };
+
+            return ApiResponse<GetUserResponse>.Ok(response);
         }
 
         public Task<ApiResponse<string>> UpdateProfileAsync(Guid userId, UpdateUserRequest request)
