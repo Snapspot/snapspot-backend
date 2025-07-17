@@ -92,5 +92,10 @@ namespace Snapspot.Infrastructure.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<int> GetCurrentActiveAgency(Guid companyId)
+        {
+           return await _context.Agencies.CountAsync(a => a.CompanyId == companyId && !a.IsDeleted);
+        }
     }
 } 

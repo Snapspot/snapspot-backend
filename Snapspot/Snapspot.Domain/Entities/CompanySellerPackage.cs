@@ -15,7 +15,5 @@ namespace Snapspot.Domain.Entities
         public int RemainingDay { get; set; }
         public bool IsActive { get; set; }
 
-        // Navigation property for Transactions
-
     }
 }

@@ -14,6 +14,9 @@ namespace Snapspot.Application.Repositories
         Task<IEnumerable<Guid>> GetSellerPackagesByCompanyAsync(Guid companyId);
         Task<CompanySellerPackage?> CompanyInSellerPackageAsync(Guid companyId, Guid sellerPackageId);
 
+
+        Task<CompanySellerPackage?> GetSubcriptionHasHighestAgency(Guid companyId);
+
         Task Add(CompanySellerPackage companySellerPackage);
         Task SaveChangesAsync();
     }

@@ -11,6 +11,7 @@ namespace Snapspot.Application.Repositories
         Task<IEnumerable<Agency>> GetAllAsync();
         Task<IEnumerable<Agency>> GetByCompanyIdAsync(Guid companyId);
         Task<IEnumerable<Agency>> GetBySpotIdAsync(Guid spotId);
+        Task<int> GetCurrentActiveAgency(Guid companyId);
         Task AddAsync(Agency agency);
         Task UpdateAsync(Agency agency);
         Task DeleteAsync(Agency agency);

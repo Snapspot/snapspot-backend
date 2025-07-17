@@ -43,5 +43,14 @@ namespace Snapspot.Infrastructure.Repositories
         {
             await _context.Set<CompanySellerPackage>().AddAsync(companySellerPackage);
         }
+
+        public async Task<CompanySellerPackage?> GetSubcriptionHasHighestAgency(Guid companyId)
+        {
+            return await _context.Set<CompanySellerPackage>()
+                .Where(x => x.CompaniesId == companyId && x.IsActive)
+                .Include(x => x.SellerPackage)
+                .OrderByDescending(x => x.SellerPackage.MaxAgency)
+                .FirstOrDefaultAsync();
+        }
     }
 }

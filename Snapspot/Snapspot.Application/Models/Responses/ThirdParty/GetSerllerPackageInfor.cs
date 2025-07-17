@@ -8,10 +8,12 @@ namespace Snapspot.Application.Models.Responses.ThirdParty
 {
     public class GetSerllerPackageInfor
     {
+        public Guid PackageId { get; set; }
         public string PackageName { get; set; } = string.Empty;
         public string PackageImageUrl { get; set; } = string.Empty;
         public int CurrentAgency { get; set; } = 0;
         public int TotalAgency { get; set; } = 0;
         public int RemainingDay { get; set; } = 0;
+        public int ReachedPeople { get; set; } = 0;
     }
 }
