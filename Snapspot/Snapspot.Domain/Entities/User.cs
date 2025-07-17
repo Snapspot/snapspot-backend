@@ -17,6 +17,7 @@ namespace Snapspot.Domain.Entities
         public string AvatarUrl { get; set; }
         public Guid RoleId { get; set; }
         public virtual Role Role { get; set; }
+        public string Bio { get; set; }
         public float Rating { get; set; }
         public bool IsApproved { get; set; }
         public virtual Company Company { get; set; }

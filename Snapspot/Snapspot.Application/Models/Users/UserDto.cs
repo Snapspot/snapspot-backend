@@ -13,6 +13,8 @@ namespace Snapspot.Application.Models.Users
         public Guid RoleId { get; set; }
         public float Rating { get; set; }
         public bool IsApproved { get; set; }
+        public string Bio { get; set; }
+        
     }
 
     public class CreateUserDto

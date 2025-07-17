@@ -97,7 +97,9 @@ namespace Snapspot.Application.UseCases.Implementations.User
                 PhoneNumber = user.PhoneNumber,
                 Dob = user.Dob,
                 RoleId = user.RoleId,
-                RoleName = user.Role?.Name // Có thể null nếu không include Role
+                RoleName = user.Role?.Name, // Có thể null nếu không include Role
+                Bio = user.Bio,
+                AvatarUrl = user.AvatarUrl
             };
 
             return ApiResponse<GetUserResponse>.Ok(response);

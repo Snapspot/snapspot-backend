@@ -15,5 +15,7 @@ namespace Snapspot.Application.Models.Responses.User
         public DateTime Dob { get; set; }
         public Guid RoleId { get; set; }
         public string RoleName { get; set; }
+        public string Bio { get; set; }
+        public string AvatarUrl { get; set; }
     }
 }
