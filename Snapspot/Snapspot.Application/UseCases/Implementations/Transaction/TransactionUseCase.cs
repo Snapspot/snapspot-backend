@@ -128,8 +128,8 @@ namespace Snapspot.Application.UseCases.Implementations.Transaction
             List<ItemData> items = new List<ItemData>();
             items.Add(item);
 
-            var cancelUrl = "https://snapspot.site/third-party/branches";
-            var returnUrl = "https://snapspot.site/third-party/branches";
+            var cancelUrl = "https://snapspot.site/third-party/package";
+            var returnUrl = "https://snapspot.site/third-party/package";
 
             TransactionEntity newTransaction = new()
             {
