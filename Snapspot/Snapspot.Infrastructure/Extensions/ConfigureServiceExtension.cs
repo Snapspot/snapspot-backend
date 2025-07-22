@@ -46,6 +46,8 @@ namespace Snapspot.Infrastructure.Extensions
 
             _ = services.AddScoped<ICompanySellerPackageRepository, CompanySellerPackageRepository>();
 
+            _ = services.AddScoped<IPostRepository, PostRepository>();
+
             return services;
         }
     }

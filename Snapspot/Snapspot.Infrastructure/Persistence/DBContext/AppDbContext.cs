@@ -20,6 +20,12 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
         public DbSet<AgencyService> AgencyServices { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<CompanySellerPackage> CompanySellerPackages { get; set; }
+        public DbSet<Post> Posts { get; set; }
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Image> Images { get; set; }
+        public DbSet<LikePost> LikePosts { get; set; }
+        public DbSet<LikeComment> LikeComments { get; set; }
+        public DbSet<SavePost> SavePosts { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -353,6 +359,114 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                 new Role { Id = new Guid("2B83F131-B445-4F46-8F88-D4E4A4645E5C"), Name = RoleEnum.ThirdParty.ToString(), CreatedAt = new DateTime(2024, 1, 1), UpdatedAt = new DateTime(2024, 1, 1), IsDeleted = false },
                 new Role { Id = new Guid("3C93F132-B445-4F46-8F88-D4E4A4645E5C"), Name = RoleEnum.User.ToString(), CreatedAt = new DateTime(2024, 1, 1), UpdatedAt = new DateTime(2024, 1, 1), IsDeleted = false }
             );
+
+            // Post
+            modelBuilder.Entity<Post>(entity =>
+            {
+                entity.ToTable("Post");
+                entity.HasKey(p => p.Id);
+                entity.Property(p => p.Content).HasMaxLength(5000);
+                entity.Property(p => p.IsDeleted).HasDefaultValue(false);
+                entity.Property(p => p.CreatedAt).HasColumnType("datetime");
+                entity.Property(p => p.UpdatedAt).HasColumnType("datetime");
+                entity.HasOne(p => p.User)
+                      .WithMany(u => u.Posts)
+                      .HasForeignKey(p => p.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(p => p.Spot)
+                      .WithMany(s => s.Posts)
+                      .HasForeignKey(p => p.SpotId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasMany(p => p.Images)
+                      .WithOne(i => i.Post)
+                      .HasForeignKey(i => i.PostId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasMany(p => p.Comments)
+                      .WithOne(c => c.Post)
+                      .HasForeignKey(c => c.PostId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasMany(p => p.LikePosts)
+                      .WithOne(lp => lp.Post)
+                      .HasForeignKey(lp => lp.PostId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasMany(p => p.SavePosts)
+                      .WithOne(sp => sp.Post)
+                      .HasForeignKey(sp => sp.PostId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+            // Comment
+            modelBuilder.Entity<Comment>(entity =>
+            {
+                entity.ToTable("Comment");
+                entity.HasKey(c => c.Id);
+                entity.Property(c => c.Content).IsRequired().HasMaxLength(1000);
+                entity.Property(c => c.CreatedAt).HasColumnType("datetime");
+                entity.HasOne(c => c.User)
+                      .WithMany(u => u.Comments)
+                      .HasForeignKey(c => c.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(c => c.Post)
+                      .WithMany(p => p.Comments)
+                      .HasForeignKey(c => c.PostId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasMany(c => c.LikeComments)
+                      .WithOne(lc => lc.Comment)
+                      .HasForeignKey(lc => lc.CommentId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+            // Image
+            modelBuilder.Entity<Image>(entity =>
+            {
+                entity.ToTable("Image");
+                entity.HasKey(i => i.Id);
+                entity.Property(i => i.Uri).HasMaxLength(500);
+                entity.HasOne(i => i.Post)
+                      .WithMany(p => p.Images)
+                      .HasForeignKey(i => i.PostId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+            // LikePost
+            modelBuilder.Entity<LikePost>(entity =>
+            {
+                entity.ToTable("LikePost");
+                entity.HasKey(lp => new { lp.UserId, lp.PostId });
+                entity.HasOne(lp => lp.User)
+                      .WithMany(u => u.LikePosts)
+                      .HasForeignKey(lp => lp.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(lp => lp.Post)
+                      .WithMany(p => p.LikePosts)
+                      .HasForeignKey(lp => lp.PostId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+            // LikeComment
+            modelBuilder.Entity<LikeComment>(entity =>
+            {
+                entity.ToTable("LikeComment");
+                entity.HasKey(lc => new { lc.UserId, lc.CommentId });
+                entity.HasOne(lc => lc.User)
+                      .WithMany(u => u.LikeComments)
+                      .HasForeignKey(lc => lc.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(lc => lc.Comment)
+                      .WithMany(c => c.LikeComments)
+                      .HasForeignKey(lc => lc.CommentId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+            // SavePost
+            modelBuilder.Entity<SavePost>(entity =>
+            {
+                entity.ToTable("SavePost");
+                entity.HasKey(sp => new { sp.UserId, sp.PostId });
+                entity.HasOne(sp => sp.User)
+                      .WithMany(u => u.SavePosts)
+                      .HasForeignKey(sp => sp.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(sp => sp.Post)
+                      .WithMany(p => p.SavePosts)
+                      .HasForeignKey(sp => sp.PostId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
         }
 
         public override int SaveChanges()

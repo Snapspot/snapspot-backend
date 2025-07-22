@@ -1,0 +1,180 @@
+﻿using Snapspot.Application.Models.Posts;
+using Snapspot.Application.Repositories;
+using Snapspot.Application.UseCases.Interfaces.Post;
+using Snapspot.Shared.Common;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Snapspot.Application.UseCases.Implementations.Post
+{
+    public class PostUseCase : IPostUseCase
+    {
+        private readonly IPostRepository _postRepository;
+        public PostUseCase(IPostRepository postRepository)
+        {
+            _postRepository = postRepository;
+        }
+
+        private double ComputePostScore(
+            int likes,
+            int comments,
+            int saves,
+            int ageInDays,
+            int likesLast24h,
+            int commentsLast24h,
+            int savesLast24h)
+        {
+            const double w1 = 3.0;
+            const double w2 = 4.0;
+            const double w3 = 5.0;
+            const double k = 7.0;
+
+            double likeScore = Math.Log(likes + 1) * w1;
+            double commentScore = Math.Log(comments + 1) * w2;
+            double saveScore = Math.Log(saves + 1) * w3;
+            double freshness = Math.Exp(-ageInDays / k) * 100;
+            double hotScore = (likesLast24h + commentsLast24h + savesLast24h) > 10 ? 20 : 0;
+
+            return likeScore + commentScore + saveScore + freshness + hotScore;
+        }
+
+        public async Task<ApiResponse<List<PostResponseDto>>> GetPostsBySpotIdAsync(Guid spotId)
+        {
+            try
+            {
+                var posts = await _postRepository.GetPostsBySpotIdAsync(spotId);
+                if (posts == null || !posts.Any())
+                {
+                    return new ApiResponse<List<PostResponseDto>>
+                    {
+                        Success = false,
+                        MessageId = MessageId.E0000,
+                        Message = "No posts found"
+                    };
+                }
+
+                var now = DateTime.UtcNow;
+                var postDtos = posts
+                    .Select(post => new
+                    {
+                        Post = post,
+                        Score = ComputePostScore(
+                            post.LikePosts?.Count ?? 0,
+                            post.Comments?.Count ?? 0,
+                            post.SavePosts?.Count ?? 0,
+                            (now - post.CreatedAt).Days,
+                            post.LikePosts?.Count(lp => (now - lp.CreatedAt).TotalHours <= 24) ?? 0,
+                            post.Comments?.Count(c => (now - c.CreatedAt).TotalHours <= 24) ?? 0,
+                            post.SavePosts?.Count(sp => (now - sp.CreatedAt).TotalHours <= 24) ?? 0
+                        )
+                    })
+                    .OrderByDescending(x => x.Score)
+                    .Select(x => new PostResponseDto
+                    {
+                        PostId = x.Post.Id.ToString(),
+                        User = new UserInfoDto
+                        {
+                            Name = x.Post.User?.Fullname,
+                            SpotId = x.Post.SpotId,
+                            Spotname = x.Post.Spot?.Name,
+                            Avatar = x.Post.User?.AvatarUrl
+                        },
+                        Content = x.Post.Content,
+                        ImageUrl = x.Post.Images?.Select(img => img.Uri).ToList() ?? new List<string>(),
+                        Likes = x.Post.LikePosts?.Count ?? 0,
+                        Comments = x.Post.Comments?.Count ?? 0,
+                        Timestamp = x.Post.CreatedAt
+                    })
+                    .ToList();
+
+                return new ApiResponse<List<PostResponseDto>>
+                {
+                    Data = postDtos,
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = Message.GetMessageById(MessageId.I0000)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<List<PostResponseDto>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0001,
+                    Message = ex.Message
+                };
+            }
+        }
+
+        public async Task<ApiResponse<List<PostResponseDto>>> GetAllPostsAsync()
+        {
+            try
+            {
+                var posts = await _postRepository.GetAllPostsAsync();
+                if (posts == null || !posts.Any())
+                {
+                    return new ApiResponse<List<PostResponseDto>>
+                    {
+                        Success = false,
+                        MessageId = MessageId.E0000,
+                        Message = "No posts found"
+                    };
+                }
+
+                var now = DateTime.UtcNow;
+                var postDtos = posts
+                    .Select(post => new
+                    {
+                        Post = post,
+                        Score = ComputePostScore(
+                            post.LikePosts?.Count ?? 0,
+                            post.Comments?.Count ?? 0,
+                            post.SavePosts?.Count ?? 0,
+                            (now - post.CreatedAt).Days,
+                            post.LikePosts?.Count(lp => (now - lp.CreatedAt).TotalHours <= 24) ?? 0,
+                            post.Comments?.Count(c => (now - c.CreatedAt).TotalHours <= 24) ?? 0,
+                            post.SavePosts?.Count(sp => (now - sp.CreatedAt).TotalHours <= 24) ?? 0
+                        )
+                    })
+                    .OrderByDescending(x => x.Score)
+                    .Select(x => new PostResponseDto
+                    {
+                        PostId = x.Post.Id.ToString(),
+                        User = new UserInfoDto
+                        {
+                            Name = x.Post.User?.Fullname,
+                            SpotId = x.Post.SpotId,
+                            Spotname = x.Post.Spot?.Name,
+                            Avatar = x.Post.User?.AvatarUrl
+                        },
+                        Content = x.Post.Content,
+                        ImageUrl = x.Post.Images?.Select(img => img.Uri).ToList() ?? new List<string>(),
+                        Likes = x.Post.LikePosts?.Count ?? 0,
+                        Comments = x.Post.Comments?.Count ?? 0,
+                        Timestamp = x.Post.CreatedAt
+                    })
+                    .ToList();
+
+                return new ApiResponse<List<PostResponseDto>>
+                {
+                    Data = postDtos,
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = Message.GetMessageById(MessageId.I0000)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<List<PostResponseDto>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0001,
+                    Message = ex.Message
+                };
+            }
+        }
+    }
+}

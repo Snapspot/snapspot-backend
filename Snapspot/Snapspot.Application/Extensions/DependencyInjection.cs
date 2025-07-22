@@ -30,6 +30,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Snapspot.Application.UseCases.Interfaces.ThirdParty;
 using Snapspot.Application.UseCases.Implementations.ThirdParty;
+using Snapspot.Application.UseCases.Interfaces.Post;
+using Snapspot.Application.UseCases.Implementations.Post;
 
 namespace Snapspot.Application.Extensions
 {
@@ -47,7 +49,7 @@ namespace Snapspot.Application.Extensions
             _ = services.AddScoped<IDistrictUseCase, DistrictUseCase>();
             _ = services.AddScoped<ISellerPackageUseCase, SellerPackageUseCase>();
             _ = services.AddScoped<IAgencyServiceUseCase, AgencyServiceUseCase>();
-
+            _ = services.AddScoped<IPostUseCase, PostUseCase>();
             _ = services.AddScoped<IThirdPartyUseCase, ThirdPartyUseCase>();
 
 

@@ -22,10 +22,20 @@ namespace Snapspot.Domain.Entities
         public bool IsApproved { get; set; }
         public virtual Company Company { get; set; }
         public virtual ICollection<Feedback> Feedbacks { get; set; }
+        public virtual ICollection<Post> Posts { get; set; }
+        public virtual ICollection<Comment> Comments { get; set; }
+        public virtual ICollection<LikePost> LikePosts { get; set; }
+        public virtual ICollection<LikeComment> LikeComments { get; set; }
+        public virtual ICollection<SavePost> SavePosts { get; set; }
 
         public User()
         {
             Feedbacks = new HashSet<Feedback>();
+            Posts = new HashSet<Post>();
+            Comments = new HashSet<Comment>();
+            LikePosts = new HashSet<LikePost>();
+            LikeComments = new HashSet<LikeComment>();
+            SavePosts = new HashSet<SavePost>();
         }
     }
 }
