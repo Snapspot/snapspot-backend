@@ -313,5 +313,44 @@ namespace Snapspot.Application.UseCases.Implementations.Post
                 };
             }
         }
+
+        public async Task<ApiResponse<List<CommentResponseDto>>> GetCommentsByPostIdAsync(Guid postId)
+        {
+            var comments = await _postRepository.GetCommentsByPostIdAsync(postId);
+
+            if (comments == null || !comments.Any())
+            {
+                return new ApiResponse<List<CommentResponseDto>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0000, 
+                    Message = "No comments found for this post.",
+                    Data = null
+                };
+            }
+
+            var commentDtos = comments.Select(comment => new CommentResponseDto
+            {
+                CommentId = comment.Id,
+                User = new UserInfoDto
+                {
+                    UserId = comment.User.Id,
+                    Name = comment.User.Fullname,
+                    Avatar = comment.User.AvatarUrl,
+                    SpotId = comment.Post?.SpotId,
+                    Spotname = comment.Post?.Spot?.Name
+                },
+                Content = comment.Content,
+                Timestamp = comment.CreatedAt
+            }).ToList();
+
+            return new ApiResponse<List<CommentResponseDto>>
+            {
+                Success = true,
+                MessageId = MessageId.I0000,
+                Message = "Get comments successfully.",
+                Data = commentDtos
+            };
+        }
     }
 }

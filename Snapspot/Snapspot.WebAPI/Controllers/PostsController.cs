@@ -86,5 +86,11 @@ namespace Snapspot.WebAPI.Controllers
 
             return Ok(result);
         }
+        [HttpGet("{postId}/comments")]
+        public async Task<IActionResult> GetCommentsByPostId(Guid postId)
+        {
+            var result = await _postUseCase.GetCommentsByPostIdAsync(postId);
+            return Ok(result);
+        }
     }
 }

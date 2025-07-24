@@ -15,5 +15,6 @@ namespace Snapspot.Application.Repositories
         Task<bool> LikePostAsync(Guid postId, Guid userId);
         Task<bool> UnlikePostAsync(Guid postId, Guid userId);
         Task<Comment> CreateCommentAsync(Guid postId, Guid userId, string content);
+        Task<List<Comment>> GetCommentsByPostIdAsync(Guid postId);
     }
 }

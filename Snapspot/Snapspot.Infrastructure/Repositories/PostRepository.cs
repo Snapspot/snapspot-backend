@@ -42,7 +42,7 @@ namespace Snapspot.Infrastructure.Repositories
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();
 
-            // Lấy lại comment kèm user để trả về đầy đủ
+            
             return await _context.Comments
                     .Include(c => c.User)
                     .Include(c => c.Post)
@@ -59,6 +59,17 @@ namespace Snapspot.Infrastructure.Repositories
                 .Include(p => p.LikePosts)
                 .Include(p => p.Comments)
                 .Include(p => p.SavePosts)
+                .ToListAsync();
+        }
+
+        public async Task<List<Comment>> GetCommentsByPostIdAsync(Guid postId)
+        {
+            return await _context.Comments
+                .Include(c => c.User)
+                .Include(c => c.Post)
+                .ThenInclude(p => p.Spot)
+                .Where(c => c.PostId == postId)
+                .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }
 
