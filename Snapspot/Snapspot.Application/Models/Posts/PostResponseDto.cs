@@ -20,6 +20,7 @@ namespace Snapspot.Application.Models.Posts
 
     public class UserInfoDto
     {
+        public Guid UserId { get; set; }
         public string Name { get; set; }
         public Guid? SpotId { get; set; }
         public string Spotname { get; set; }

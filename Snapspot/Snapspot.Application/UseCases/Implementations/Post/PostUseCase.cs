@@ -264,5 +264,54 @@ namespace Snapspot.Application.UseCases.Implementations.Post
                 };
             }
         }
+
+        public async Task<ApiResponse<CommentResponseDto>> CreateCommentAsync(Guid postId, Guid userId, CreateCommentRequestDto request)
+        {
+            try
+            {
+                var comment = await _postRepository.CreateCommentAsync(postId, userId, request.Content);
+                if (comment == null)
+                {
+                    return new ApiResponse<CommentResponseDto>
+                    {
+                        Success = false,
+                        Message = "Post not found or cannot comment.",
+                        Data = null
+                    };
+                }
+
+                var response = new CommentResponseDto
+                {
+                    CommentId = comment.Id,
+                    User = new UserInfoDto
+                    {
+                        UserId = comment.User.Id,
+                        Name = comment.User.Fullname,
+                        SpotId = comment.Post?.SpotId, 
+                        Spotname = comment.Post?.Spot?.Name, 
+                        Avatar = comment.User.AvatarUrl
+                    },
+                    Content = comment.Content,
+                    Timestamp = comment.CreatedAt
+                };
+
+                return new ApiResponse<CommentResponseDto>
+                {
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = "Comment created successfully.",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<CommentResponseDto>
+                {
+                    Success = false,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Snapspot.Application.Models.Posts;
 using Snapspot.Application.UseCases.Interfaces.Post;
 
 namespace Snapspot.WebAPI.Controllers
@@ -64,6 +65,22 @@ namespace Snapspot.WebAPI.Controllers
             Guid userId = Guid.Parse(userIdClaim.Value);
 
             var result = await _postUseCase.UnlikePostAsync(postId, userId);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpPost("{postId}/comments")]
+        public async Task<IActionResult> CreateComment(Guid postId, [FromBody] CreateCommentRequestDto request)
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id" || c.Type.EndsWith("nameidentifier"));
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            Guid userId = Guid.Parse(userIdClaim.Value);
+
+            var result = await _postUseCase.CreateCommentAsync(postId, userId, request);
             if (!result.Success)
                 return BadRequest(result);
 

@@ -15,5 +15,6 @@ namespace Snapspot.Application.UseCases.Interfaces.Post
         Task<IEnumerable<PostResponseDto>> SearchPostsAsync(string query);
         Task<ApiResponse<bool>> LikePostAsync(Guid postId, Guid userId);
         Task<ApiResponse<bool>> UnlikePostAsync(Guid postId, Guid userId);
+        Task<ApiResponse<CommentResponseDto>> CreateCommentAsync(Guid postId, Guid userId, CreateCommentRequestDto request);
     }
 }

@@ -19,6 +19,37 @@ namespace Snapspot.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<Comment> CreateCommentAsync(Guid postId, Guid userId, string content)
+        {
+            var post = await _context.Posts
+                .Include(p => p.Comments)
+                .FirstOrDefaultAsync(p => p.Id == postId);
+
+            var user = await _context.Users.FindAsync(userId);
+
+            if (post == null || user == null)
+                return null;
+
+            var comment = new Comment
+            {
+                Id = Guid.NewGuid(),
+                PostId = postId,
+                UserId = userId,
+                Content = content,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+
+            // Lấy lại comment kèm user để trả về đầy đủ
+            return await _context.Comments
+                    .Include(c => c.User)
+                    .Include(c => c.Post)
+                    .ThenInclude(p => p.Spot)
+                    .FirstOrDefaultAsync(c => c.Id == comment.Id);
+        }
+
         public async Task<IEnumerable<Post>> GetAllPostsAsync()
         {
             return await _context.Posts
