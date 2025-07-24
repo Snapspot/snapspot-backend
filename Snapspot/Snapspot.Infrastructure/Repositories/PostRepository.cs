@@ -42,5 +42,18 @@ namespace Snapspot.Infrastructure.Repositories
                 .Where(p => p.SpotId == spotId)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Post>> SearchPostsAsync(string query)
+        {
+            return await _context.Posts
+         .Include(p => p.User)
+         .Include(p => p.Spot)
+         .Include(p => p.Images)
+         .Include(p => p.LikePosts)
+         .Include(p => p.Comments)
+         .Include(p => p.SavePosts)
+         .Where(p => p.Content.Contains(query))
+         .ToListAsync();
+        }
     }
 }

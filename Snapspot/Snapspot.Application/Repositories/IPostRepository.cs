@@ -11,5 +11,6 @@ namespace Snapspot.Application.Repositories
     {
         Task<IEnumerable<Post>> GetPostsBySpotIdAsync(Guid spotId);
         Task<IEnumerable<Post>> GetAllPostsAsync();
+        Task<IEnumerable<Post>> SearchPostsAsync(string query);
     }
 }

@@ -176,5 +176,29 @@ namespace Snapspot.Application.UseCases.Implementations.Post
                 };
             }
         }
+
+        public async Task<IEnumerable<PostResponseDto>> SearchPostsAsync(string query)
+        {
+            var posts = await _postRepository.SearchPostsAsync(query);
+            var now = DateTime.UtcNow;
+            var postDtos = posts.Select(post => new PostResponseDto
+            {
+                PostId = post.Id.ToString(),
+                User = new UserInfoDto
+                {
+                    Name = post.User?.Fullname,
+                    SpotId = post.SpotId,
+                    Spotname = post.Spot?.Name,
+                    Avatar = post.User?.AvatarUrl
+                },
+                Content = post.Content,
+                ImageUrl = post.Images?.Select(img => img.Uri).ToList() ?? new List<string>(),
+                Likes = post.LikePosts?.Count ?? 0,
+                Comments = post.Comments?.Count ?? 0,
+                Timestamp = post.CreatedAt
+            }).ToList();
+
+            return postDtos;
+        }
     }
 }

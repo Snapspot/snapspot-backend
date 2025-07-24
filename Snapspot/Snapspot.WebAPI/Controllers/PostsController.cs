@@ -27,5 +27,12 @@ namespace Snapspot.WebAPI.Controllers
             var result = await _postUseCase.GetAllPostsAsync();
             return Ok(result);
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string q)
+        {
+            var result = await _postUseCase.SearchPostsAsync(q);
+            return Ok(result);
+        }
     }
 }

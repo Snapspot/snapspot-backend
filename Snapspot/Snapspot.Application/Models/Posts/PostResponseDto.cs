@@ -15,6 +15,7 @@ namespace Snapspot.Application.Models.Posts
         public int Likes { get; set; }
         public int Comments { get; set; }
         public DateTime Timestamp { get; set; }
+        public string Query { get; set; }
     }
 
     public class UserInfoDto
