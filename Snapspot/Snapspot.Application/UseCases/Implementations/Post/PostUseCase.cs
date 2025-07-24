@@ -232,5 +232,37 @@ namespace Snapspot.Application.UseCases.Implementations.Post
                 };
             }
         }
+
+        public async Task<ApiResponse<bool>> UnlikePostAsync(Guid postId, Guid userId)
+        {
+            try
+            {
+                var result = await _postRepository.UnlikePostAsync(postId, userId);
+                if (!result)
+                {
+                    return new ApiResponse<bool>
+                    {
+                        Success = false,
+                        Message = "You have not liked this post yet.",
+                        Data = false
+                    };
+                }
+                return new ApiResponse<bool>
+                {
+                    Success = true,
+                    Message = "Post unliked successfully.",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message,
+                    Data = false
+                };
+            }
+        }
     }
 }

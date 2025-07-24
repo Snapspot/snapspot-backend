@@ -52,5 +52,22 @@ namespace Snapspot.WebAPI.Controllers
 
             return Ok(result);
         }
+        [Authorize]
+        [HttpPost("{postId}/unlike")]
+        public async Task<IActionResult> UnlikePost(Guid postId)
+        {
+            // Lấy userId từ JWT
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id" || c.Type.EndsWith("nameidentifier"));
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            Guid userId = Guid.Parse(userIdClaim.Value);
+
+            var result = await _postUseCase.UnlikePostAsync(postId, userId);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

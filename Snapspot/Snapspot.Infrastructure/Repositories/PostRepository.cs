@@ -78,5 +78,22 @@ namespace Snapspot.Infrastructure.Repositories
          .Where(p => p.Content.Contains(query))
          .ToListAsync();
         }
+
+        public async Task<bool> UnlikePostAsync(Guid postId, Guid userId)
+        {
+            var post = await _context.Posts
+                .Include(p => p.LikePosts)
+                .FirstOrDefaultAsync(p => p.Id == postId);
+
+            if (post == null) return false;
+
+            var like = post.LikePosts.FirstOrDefault(lp => lp.UserId == userId);
+            if (like == null)
+                return false;
+
+            post.LikePosts.Remove(like);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

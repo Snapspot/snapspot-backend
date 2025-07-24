@@ -13,5 +13,6 @@ namespace Snapspot.Application.Repositories
         Task<IEnumerable<Post>> GetAllPostsAsync();
         Task<IEnumerable<Post>> SearchPostsAsync(string query);
         Task<bool> LikePostAsync(Guid postId, Guid userId);
+        Task<bool> UnlikePostAsync(Guid postId, Guid userId);
     }
 }
