@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Snapspot.Application.UseCases.Interfaces.Post;
 
@@ -32,6 +33,23 @@ namespace Snapspot.WebAPI.Controllers
         public async Task<IActionResult> Search([FromQuery] string q)
         {
             var result = await _postUseCase.SearchPostsAsync(q);
+            return Ok(result);
+        }
+        [Authorize]
+        [HttpPost("{postId}/like")]
+        public async Task<IActionResult> LikePost(Guid postId)
+        {
+            // Lấy userId từ JWT
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id" || c.Type.EndsWith("nameidentifier"));
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            Guid userId = Guid.Parse(userIdClaim.Value);
+
+            var result = await _postUseCase.LikePostAsync(postId, userId);
+            if (!result.Success)
+                return BadRequest(result);
+
             return Ok(result);
         }
     }

@@ -43,6 +43,29 @@ namespace Snapspot.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+        public async Task<bool> LikePostAsync(Guid postId, Guid userId)
+        {
+            var post = await _context.Posts
+        .Include(p => p.LikePosts)
+        .FirstOrDefaultAsync(p => p.Id == postId);
+
+            if (post == null) return false;
+
+            // Kiểm tra đã like chưa
+            if (post.LikePosts.Any(lp => lp.UserId == userId))
+                return false;
+
+            post.LikePosts.Add(new LikePost
+            {
+                PostId = postId,
+                UserId = userId,
+                CreatedAt = DateTime.UtcNow
+            });
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<IEnumerable<Post>> SearchPostsAsync(string query)
         {
             return await _context.Posts

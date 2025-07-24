@@ -200,5 +200,37 @@ namespace Snapspot.Application.UseCases.Implementations.Post
 
             return postDtos;
         }
+
+        public async Task<ApiResponse<bool>> LikePostAsync(Guid postId, Guid userId)
+        {
+            try
+            {
+                var result = await _postRepository.LikePostAsync(postId, userId);
+                if (!result)
+                {
+                    return new ApiResponse<bool>
+                    {
+                        Success = false,
+                        Message = "You have already liked this post.",
+                        Data = false
+                    };
+                }
+                return new ApiResponse<bool>
+                {
+                    Success = true,
+                    Message = "Post liked successfully.",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message,
+                    Data = false
+                };
+            }
+        }
     }
 }

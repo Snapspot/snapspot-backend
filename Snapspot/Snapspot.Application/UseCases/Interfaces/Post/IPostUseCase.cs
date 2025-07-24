@@ -13,5 +13,6 @@ namespace Snapspot.Application.UseCases.Interfaces.Post
         Task<ApiResponse<List<PostResponseDto>>> GetPostsBySpotIdAsync(Guid spotId);
         Task<ApiResponse<List<PostResponseDto>>> GetAllPostsAsync();
         Task<IEnumerable<PostResponseDto>> SearchPostsAsync(string query);
+        Task<ApiResponse<bool>> LikePostAsync(Guid postId, Guid userId);
     }
 }
