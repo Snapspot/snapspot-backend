@@ -92,5 +92,23 @@ namespace Snapspot.WebAPI.Controllers
             var result = await _postUseCase.GetCommentsByPostIdAsync(postId);
             return Ok(result);
         }
+
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> CreatePost([FromBody] CreatePostRequestDto request)
+        {
+            // Lấy userId từ JWT token
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id" || c.Type.EndsWith("nameidentifier"));
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            Guid userId = Guid.Parse(userIdClaim.Value);
+
+            var result = await _postUseCase.CreatePostAsync(userId, request);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return CreatedAtAction(nameof(GetBySpotId), new { spotId = result.Data.User.SpotId }, result);
+        }
     }
 }

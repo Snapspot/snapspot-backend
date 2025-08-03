@@ -1,6 +1,7 @@
 ﻿using Snapspot.Application.Models.Posts;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.UseCases.Interfaces.Post;
+using Snapspot.Domain.Entities;
 using Snapspot.Shared.Common;
 using System;
 using System.Collections.Generic;
@@ -351,6 +352,78 @@ namespace Snapspot.Application.UseCases.Implementations.Post
                 Message = "Get comments successfully.",
                 Data = commentDtos
             };
+        }
+
+        public async Task<ApiResponse<PostResponseDto>> CreatePostAsync(Guid userId, CreatePostRequestDto request)
+        {
+            try
+            {
+                // Validate request
+                if (string.IsNullOrWhiteSpace(request.Content))
+                {
+                    return new ApiResponse<PostResponseDto>
+                    {
+                        Success = false,
+                        Message = "Content cannot be empty",
+                        Data = null
+                    };
+                }
+                // Create new post entity
+                var post = new Snapspot.Domain.Entities.Post
+                {
+                    Content = request.Content,
+                    UserId = userId,
+                    SpotId = request.SpotId,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                // Add images if provided
+                if (request.ImageUrls != null && request.ImageUrls.Any())
+                {
+                    foreach (var imageUrl in request.ImageUrls)
+                    {
+                        post.Images.Add(new Image { Uri = imageUrl });
+                    }
+                }
+
+                // Save to database
+                var createdPost = await _postRepository.CreatePostAsync(post);
+
+                // Return response
+                var response = new PostResponseDto
+                {
+                    PostId = createdPost.Id.ToString(),
+                    User = new UserInfoDto
+                    {
+                        Name = createdPost.User?.Fullname,
+                        SpotId = createdPost.SpotId,
+                        Spotname = createdPost.Spot?.Name,
+                        Avatar = createdPost.User?.AvatarUrl
+                    },
+                    Content = createdPost.Content,
+                    ImageUrl = createdPost.Images?.Select(img => img.Uri).ToList() ?? new List<string>(),
+                    Likes = 0,
+                    Comments = 0,
+                    Timestamp = createdPost.CreatedAt
+                };
+
+                return new ApiResponse<PostResponseDto>
+                {
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = "Post created successfully",
+                    Data = response
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<PostResponseDto>
+                {
+                    Success = false,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
         }
     }
 }

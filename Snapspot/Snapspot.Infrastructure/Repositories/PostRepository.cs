@@ -50,6 +50,13 @@ namespace Snapspot.Infrastructure.Repositories
                     .FirstOrDefaultAsync(c => c.Id == comment.Id);
         }
 
+        public async Task<Post> CreatePostAsync(Post post)
+        {
+            await _context.Posts.AddAsync(post);
+            await _context.SaveChangesAsync();
+            return post;
+        }
+
         public async Task<IEnumerable<Post>> GetAllPostsAsync()
         {
             return await _context.Posts
