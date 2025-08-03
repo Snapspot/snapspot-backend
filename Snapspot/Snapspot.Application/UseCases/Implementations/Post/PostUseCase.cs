@@ -425,5 +425,63 @@ namespace Snapspot.Application.UseCases.Implementations.Post
                 };
             }
         }
+
+        public async Task<ApiResponse<bool>> DeletePostAsync(Guid postId, Guid userId)
+        {
+            try
+            {
+                // Kiểm tra post có tồn tại không
+                var existingPost = await _postRepository.GetPostByIdAsync(postId);
+                if (existingPost == null)
+                {
+                    return new ApiResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Post not found",
+                        Data = false
+                    };
+                }
+
+                // Kiểm tra user có quyền xóa post không (chỉ owner mới được xóa)
+                if (existingPost.UserId != userId)
+                {
+                    return new ApiResponse<bool>
+                    {
+                        Success = false,
+                        Message = "You don't have permission to delete this post",
+                        Data = false
+                    };
+                }
+
+                // Thực hiện xóa post
+                var result = await _postRepository.DeletePostAsync(postId, userId);
+                if (!result)
+                {
+                    return new ApiResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Failed to delete post",
+                        Data = false
+                    };
+                }
+
+                return new ApiResponse<bool>
+                {
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = "Post deleted successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message,
+                    Data = false
+                };
+            }
+        }
     }
 }

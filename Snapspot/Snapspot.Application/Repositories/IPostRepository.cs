@@ -17,5 +17,7 @@ namespace Snapspot.Application.Repositories
         Task<Comment> CreateCommentAsync(Guid postId, Guid userId, string content);
         Task<List<Comment>> GetCommentsByPostIdAsync(Guid postId);
         Task<Post> CreatePostAsync(Post post);
+        Task<bool> DeletePostAsync(Guid postId, Guid userId);
+        Task<Post> GetPostByIdAsync(Guid postId); // Thêm method này để check post tồn tại
     }
 }

@@ -110,5 +110,23 @@ namespace Snapspot.WebAPI.Controllers
 
             return CreatedAtAction(nameof(GetBySpotId), new { spotId = result.Data.User.SpotId }, result);
         }
+
+        [Authorize]
+        [HttpDelete("{postId}")]
+        public async Task<IActionResult> DeletePost(Guid postId)
+        {
+            // Lấy userId từ JWT token
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id" || c.Type.EndsWith("nameidentifier"));
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            Guid userId = Guid.Parse(userIdClaim.Value);
+
+            var result = await _postUseCase.DeletePostAsync(postId, userId);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
     }
 }

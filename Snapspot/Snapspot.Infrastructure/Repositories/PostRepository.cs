@@ -57,6 +57,31 @@ namespace Snapspot.Infrastructure.Repositories
             return post;
         }
 
+        public async Task<bool> DeletePostAsync(Guid postId, Guid userId)
+        {
+            var post = await _context.Posts
+                 .Include(p => p.Images)
+                 .Include(p => p.Comments)
+                 .Include(p => p.LikePosts)
+                 .Include(p => p.SavePosts)
+                 .FirstOrDefaultAsync(p => p.Id == postId && p.UserId == userId);
+
+            if (post == null)
+                return false;
+
+            // Xóa các related entities trước
+            _context.Images.RemoveRange(post.Images);
+            _context.Comments.RemoveRange(post.Comments);
+            _context.LikePosts.RemoveRange(post.LikePosts);
+            _context.SavePosts.RemoveRange(post.SavePosts);
+
+            // Xóa post
+            _context.Posts.Remove(post);
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<IEnumerable<Post>> GetAllPostsAsync()
         {
             return await _context.Posts
@@ -78,6 +103,18 @@ namespace Snapspot.Infrastructure.Repositories
                 .Where(c => c.PostId == postId)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
+        }
+
+        public async Task<Post> GetPostByIdAsync(Guid postId)
+        {
+            return await _context.Posts
+                .Include(p => p.User)
+                .Include(p => p.Spot)
+                .Include(p => p.Images)
+                .Include(p => p.Comments)
+                .Include(p => p.LikePosts)
+                .Include(p => p.SavePosts)
+                .FirstOrDefaultAsync(p => p.Id == postId);
         }
 
         public async Task<IEnumerable<Post>> GetPostsBySpotIdAsync(Guid spotId)
