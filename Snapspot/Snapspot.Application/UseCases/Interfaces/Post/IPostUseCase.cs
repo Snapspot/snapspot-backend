@@ -19,5 +19,9 @@ namespace Snapspot.Application.UseCases.Interfaces.Post
         Task<ApiResponse<List<CommentResponseDto>>> GetCommentsByPostIdAsync(Guid postId);
         Task<ApiResponse<PostResponseDto>> CreatePostAsync(Guid userId, CreatePostRequestDto request);
         Task<ApiResponse<bool>> DeletePostAsync(Guid postId, Guid userId);
+        Task<ApiResponse<bool>> SavePostAsync(Guid postId, Guid userId);
+        Task<ApiResponse<bool>> UnsavePostAsync(Guid postId, Guid userId);
+        Task<ApiResponse<List<SavedPostDto>>> GetSavedPostsAsync(Guid userId);
+        Task<ApiResponse<bool>> IsPostSavedAsync(Guid postId, Guid userId);
     }
 }

@@ -483,5 +483,163 @@ namespace Snapspot.Application.UseCases.Implementations.Post
                 };
             }
         }
+
+        public async Task<ApiResponse<bool>> SavePostAsync(Guid postId, Guid userId)
+        {
+            try
+            {
+                // Kiểm tra post có tồn tại không
+                var post = await _postRepository.GetPostByIdAsync(postId);
+                if (post == null)
+                {
+                    return new ApiResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Post not found",
+                        Data = false
+                    };
+                }
+
+                // Kiểm tra đã save chưa
+                var isAlreadySaved = await _postRepository.IsPostSavedByUserAsync(postId, userId);
+                if (isAlreadySaved)
+                {
+                    return new ApiResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Post already saved",
+                        Data = false
+                    };
+                }
+
+                var result = await _postRepository.SavePostAsync(postId, userId);
+                return new ApiResponse<bool>
+                {
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = "Post saved successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message,
+                    Data = false
+                };
+            }
+        }
+
+        public async Task<ApiResponse<bool>> UnsavePostAsync(Guid postId, Guid userId)
+        {
+            try
+            {
+                var result = await _postRepository.UnsavePostAsync(postId, userId);
+                if (!result)
+                {
+                    return new ApiResponse<bool>
+                    {
+                        Success = false,
+                        Message = "Post not found in saved list",
+                        Data = false
+                    };
+                }
+
+                return new ApiResponse<bool>
+                {
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = "Post unsaved successfully",
+                    Data = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message,
+                    Data = false
+                };
+            }
+        }
+
+        public async Task<ApiResponse<List<SavedPostDto>>> GetSavedPostsAsync(Guid userId)
+        {
+            try
+            {
+                var savedPosts = await _postRepository.GetSavedPostsByUserIdAsync(userId);
+                if (!savedPosts.Any())
+                {
+                    return new ApiResponse<List<SavedPostDto>>
+                    {
+                        Success = false,
+                        Message = "No saved posts found",
+                        Data = new List<SavedPostDto>()
+                    };
+                }
+
+                var savedPostDtos = savedPosts.Select(post => new SavedPostDto
+                {
+                    PostId = post.Id.ToString(),
+                    User = new UserInfoDto
+                    {
+                        Name = post.User?.Fullname,
+                        SpotId = post.SpotId,
+                        Spotname = post.Spot?.Name,
+                        Avatar = post.User?.AvatarUrl
+                    },
+                    Content = post.Content,
+                    ImageUrl = post.Images?.Select(img => img.Uri).ToList() ?? new List<string>(),
+                    Likes = post.LikePosts?.Count ?? 0,
+                    Comments = post.Comments?.Count ?? 0,
+                    Timestamp = post.CreatedAt,
+                    SavedAt = post.SavePosts?.FirstOrDefault(sp => sp.UserId == userId)?.CreatedAt ?? DateTime.UtcNow
+                }).ToList();
+
+                return new ApiResponse<List<SavedPostDto>>
+                {
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = "Saved posts retrieved successfully",
+                    Data = savedPostDtos
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<List<SavedPostDto>>
+                {
+                    Success = false,
+                    Message = ex.Message,
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<ApiResponse<bool>> IsPostSavedAsync(Guid postId, Guid userId)
+        {
+            try
+            {
+                var isSaved = await _postRepository.IsPostSavedByUserAsync(postId, userId);
+                return new ApiResponse<bool>
+                {
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = "Check saved status successfully",
+                    Data = isSaved
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<bool>
+                {
+                    Success = false,
+                    Message = ex.Message,
+                    Data = false
+                };
+            }
+        }
     }
 }

@@ -181,5 +181,64 @@ namespace Snapspot.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<bool> SavePostAsync(Guid postId, Guid userId)
+        {
+            var existingSave = await _context.SavePosts
+                .FirstOrDefaultAsync(sp => sp.PostId == postId && sp.UserId == userId);
+
+            if (existingSave != null)
+                return false;
+
+            var savePost = new SavePost
+            {
+                PostId = postId,
+                UserId = userId,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _context.SavePosts.AddAsync(savePost);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> UnsavePostAsync(Guid postId, Guid userId)
+        {
+            var savePost = await _context.SavePosts
+                .FirstOrDefaultAsync(sp => sp.PostId == postId && sp.UserId == userId);
+
+            if (savePost == null)
+                return false;
+
+            _context.SavePosts.Remove(savePost);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<IEnumerable<Post>> GetSavedPostsByUserIdAsync(Guid userId)
+        {
+            return await _context.SavePosts
+                .Where(sp => sp.UserId == userId)
+                .Include(sp => sp.Post)
+                    .ThenInclude(p => p.User)
+                .Include(sp => sp.Post)
+                    .ThenInclude(p => p.Spot)
+                .Include(sp => sp.Post)
+                    .ThenInclude(p => p.Images)
+                .Include(sp => sp.Post)
+                    .ThenInclude(p => p.LikePosts)
+                .Include(sp => sp.Post)
+                    .ThenInclude(p => p.Comments)
+                .Include(sp => sp.Post)
+                    .ThenInclude(p => p.SavePosts)
+                .OrderByDescending(sp => sp.CreatedAt)
+                .Select(sp => sp.Post)
+                .ToListAsync();
+        }
+
+        public async Task<bool> IsPostSavedByUserAsync(Guid postId, Guid userId)
+        {
+            return await _context.SavePosts
+                .AnyAsync(sp => sp.PostId == postId && sp.UserId == userId);
+        }
     }
 }

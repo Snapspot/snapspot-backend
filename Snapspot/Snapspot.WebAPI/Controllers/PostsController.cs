@@ -128,5 +128,66 @@ namespace Snapspot.WebAPI.Controllers
 
             return Ok(result);
         }
+        [Authorize]
+        [HttpPost("{postId}/save")]
+        public async Task<IActionResult> SavePost(Guid postId)
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id" || c.Type.EndsWith("nameidentifier"));
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            Guid userId = Guid.Parse(userIdClaim.Value);
+
+            var result = await _postUseCase.SavePostAsync(postId, userId);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpDelete("{postId}/save")]
+        public async Task<IActionResult> UnsavePost(Guid postId)
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id" || c.Type.EndsWith("nameidentifier"));
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            Guid userId = Guid.Parse(userIdClaim.Value);
+
+            var result = await _postUseCase.UnsavePostAsync(postId, userId);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("{postId}/saved")]
+        public async Task<IActionResult> IsPostSaved(Guid postId)
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id" || c.Type.EndsWith("nameidentifier"));
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            Guid userId = Guid.Parse(userIdClaim.Value);
+
+            var result = await _postUseCase.IsPostSavedAsync(postId, userId);
+            return Ok(result);
+        }
+      
+        [Authorize]
+        [HttpGet("saved")]
+        public async Task<IActionResult> GetMySavedPosts()
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id" || c.Type.EndsWith("nameidentifier"));
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            Guid userId = Guid.Parse(userIdClaim.Value);
+
+            var result = await _postUseCase.GetSavedPostsAsync(userId);
+            return Ok(result);
+        }
     }
 }

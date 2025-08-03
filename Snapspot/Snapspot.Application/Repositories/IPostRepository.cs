@@ -19,5 +19,9 @@ namespace Snapspot.Application.Repositories
         Task<Post> CreatePostAsync(Post post);
         Task<bool> DeletePostAsync(Guid postId, Guid userId);
         Task<Post> GetPostByIdAsync(Guid postId); // Thêm method này để check post tồn tại
+        Task<bool> SavePostAsync(Guid postId, Guid userId);
+        Task<bool> UnsavePostAsync(Guid postId, Guid userId);
+        Task<IEnumerable<Post>> GetSavedPostsByUserIdAsync(Guid userId);
+        Task<bool> IsPostSavedByUserAsync(Guid postId, Guid userId);
     }
 }
