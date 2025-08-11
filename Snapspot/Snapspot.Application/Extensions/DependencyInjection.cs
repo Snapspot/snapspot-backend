@@ -32,6 +32,8 @@ using Snapspot.Application.UseCases.Interfaces.ThirdParty;
 using Snapspot.Application.UseCases.Implementations.ThirdParty;
 using Snapspot.Application.UseCases.Interfaces.Post;
 using Snapspot.Application.UseCases.Implementations.Post;
+using Snapspot.Application.UseCases.Implementations.Style;
+using Snapspot.Application.UseCases.Interfaces.Style;
 
 namespace Snapspot.Application.Extensions
 {
@@ -51,6 +53,7 @@ namespace Snapspot.Application.Extensions
             _ = services.AddScoped<IAgencyServiceUseCase, AgencyServiceUseCase>();
             _ = services.AddScoped<IPostUseCase, PostUseCase>();
             _ = services.AddScoped<IThirdPartyUseCase, ThirdPartyUseCase>();
+            _ = services.AddScoped<IStyleUseCase, StyleUseCase>();
 
 
             return services;

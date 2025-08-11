@@ -1,5 +1,6 @@
-using Snapspot.Application.Models.Responses.Spot;
+﻿using Snapspot.Application.Models.Responses.Spot;
 using Snapspot.Application.Models.Spots;
+using Snapspot.Application.Models.Styles;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.UseCases.Interfaces.Spot;
 using Snapspot.Shared.Common;
@@ -17,15 +18,18 @@ namespace Snapspot.Application.UseCases.Implementations.Spot
         private readonly ISpotRepository _spotRepository;
         private readonly IDistrictRepository _districtRepository;
         private readonly IProvinceRepository _provinceRepository;
+        private readonly IStyleRepository _styleRepository;
 
         public SpotUseCase(
             ISpotRepository spotRepository,
             IDistrictRepository districtRepository,
-            IProvinceRepository provinceRepository)
+            IProvinceRepository provinceRepository,
+            IStyleRepository styleRepository)
         {
             _spotRepository = spotRepository;
             _districtRepository = districtRepository;
             _provinceRepository = provinceRepository;
+            _styleRepository = styleRepository;
         }
 
         public async Task<ApiResponse<SpotDto>> GetByIdAsync(Guid id)
@@ -43,6 +47,9 @@ namespace Snapspot.Application.UseCases.Implementations.Spot
                     };
                 }
 
+                // Lấy styles của spot
+                var styles = await _spotRepository.GetStylesBySpotIdAsync(id);
+
                 var spotDto = new SpotDto
                 {
                     Id = spot.Id,
@@ -57,7 +64,8 @@ namespace Snapspot.Application.UseCases.Implementations.Spot
                     ImageUrl = spot.ImageUrl,
                     CreatedAt = spot.CreatedAt,
                     UpdatedAt = spot.UpdatedAt,
-                    IsDeleted = spot.IsDeleted
+                    IsDeleted = spot.IsDeleted,
+                    Styles = styles.ToList() // Thêm .ToList()
                 };
 
                 return new ApiResponse<SpotDto>
@@ -84,23 +92,33 @@ namespace Snapspot.Application.UseCases.Implementations.Spot
             try
             {
                 var spots = await _spotRepository.GetAllAsync();
-                
-                var spotDtos = spots.Select(s => new SpotDto
+
+                var spotDtos = new List<SpotDto>();
+
+                foreach (var spot in spots)
                 {
-                    Id = s.Id,
-                    Name = s.Name,
-                    Description = s.Description,
-                    Latitude = s.Latitude,
-                    Longitude = s.Longitude,
-                    DistrictId = s.DistrictId,
-                    DistrictName = s.District?.Name ?? "",
-                    ProvinceName = s.District?.Province?.Name ?? "",
-                    Address = s.Address,
-                    ImageUrl = s.ImageUrl,
-                    CreatedAt = s.CreatedAt,
-                    UpdatedAt = s.UpdatedAt,
-                    IsDeleted = s.IsDeleted
-                }).ToList();
+                    var styles = await _spotRepository.GetStylesBySpotIdAsync(spot.Id);
+
+                    var spotDto = new SpotDto
+                    {
+                        Id = spot.Id,
+                        Name = spot.Name,
+                        Description = spot.Description,
+                        Latitude = spot.Latitude,
+                        Longitude = spot.Longitude,
+                        DistrictId = spot.DistrictId,
+                        DistrictName = spot.District?.Name ?? "",
+                        ProvinceName = spot.District?.Province?.Name ?? "",
+                        Address = spot.Address,
+                        ImageUrl = spot.ImageUrl,
+                        CreatedAt = spot.CreatedAt,
+                        UpdatedAt = spot.UpdatedAt,
+                        IsDeleted = spot.IsDeleted,
+                        Styles = styles.ToList() // Thêm .ToList() để convert từ IEnumerable sang List
+                    };
+
+                    spotDtos.Add(spotDto);
+                }
 
                 return new ApiResponse<IEnumerable<SpotDto>>
                 {

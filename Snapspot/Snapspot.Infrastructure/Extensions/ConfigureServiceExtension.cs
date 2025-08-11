@@ -48,6 +48,8 @@ namespace Snapspot.Infrastructure.Extensions
 
             _ = services.AddScoped<IPostRepository, PostRepository>();
 
+            _ = services.AddScoped<IStyleRepository, StyleRepository>();
+
             return services;
         }
     }
