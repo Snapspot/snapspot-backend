@@ -17,11 +17,14 @@ namespace Snapspot.Domain.Entities
         public virtual ICollection<Post> Posts { get; set; }
         public string Address { get; set; }
         public string ImageUrl { get; set; }
+        public string? Time { get; set; }
+        public virtual ICollection<StyleSpot> StyleSpots { get; set; }
 
         public Spot()
         {
             Agencies = new HashSet<Agency>();
             Posts = new HashSet<Post>();
+            StyleSpots = new HashSet<StyleSpot>();
         }
     }
 } 

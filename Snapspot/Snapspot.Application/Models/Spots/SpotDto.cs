@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Snapspot.Application.Models.Agencies;
+using Snapspot.Application.Models.Styles;
 
 namespace Snapspot.Application.Models.Spots
 {
@@ -19,5 +20,7 @@ namespace Snapspot.Application.Models.Spots
         public bool IsDeleted { get; set; }
         public string Address { get; set; }
         public string ImageUrl { get; set; }
+        public List<StyleDto> Styles { get; set; } = new List<StyleDto>();
+        public string? Time { get; set; }
     }
 } 

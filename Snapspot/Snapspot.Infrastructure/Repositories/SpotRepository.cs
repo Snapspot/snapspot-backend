@@ -1,4 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Snapspot.Application.Models.Styles;
 using Snapspot.Application.Repositories;
 using Snapspot.Domain.Entities;
 using Snapspot.Infrastructure.Persistence.DBContext;
@@ -81,6 +82,61 @@ namespace Snapspot.Infrastructure.Repositories
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
+        }
+        
+      
+
+        public async Task<bool> AssignStyleToSpotAsync(Guid styleId, Guid spotId)
+        {
+            var existingRelation = await _context.Set<StyleSpot>()
+                .FirstOrDefaultAsync(ss => ss.StyleId == styleId && ss.SpotId == spotId && !ss.IsDeleted);
+
+            if (existingRelation != null)
+                return false;
+
+            var styleSpot = new StyleSpot
+            {
+                StyleId = styleId,
+                SpotId = spotId,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _context.Set<StyleSpot>().AddAsync(styleSpot);
+            return true;
+        }
+
+        public async Task<bool> RemoveStyleFromSpotIdAsync(Guid styleId, Guid spotId)
+        {
+            var relation = await _context.Set<StyleSpot>()
+                .FirstOrDefaultAsync(ss => ss.StyleId == styleId && ss.SpotId == spotId && !ss.IsDeleted);
+
+            if (relation == null)
+                return false;
+
+            relation.IsDeleted = true;
+            relation.UpdatedAt = DateTime.UtcNow;
+            return true;
+        }
+
+        public async Task<IEnumerable<StyleDto>> GetStylesBySpotIdAsync(Guid spotId)
+        {
+            var styles = await _context.Set<StyleSpot>()
+                .Include(ss => ss.Style)
+                .Where(ss => ss.SpotId == spotId && !ss.IsDeleted && !ss.Style.IsDeleted)
+                .Select(ss => new StyleDto
+                {
+                    Id = ss.Style.Id,
+                    Category = ss.Style.Category,
+                    Description = ss.Style.Description,
+                    Image = ss.Style.Image,
+                    CreatedAt = ss.Style.CreatedAt,
+                    UpdatedAt = ss.Style.UpdatedAt,
+                    IsDeleted = ss.Style.IsDeleted
+                })
+                .ToListAsync();
+
+            return styles;
         }
     }
 } 

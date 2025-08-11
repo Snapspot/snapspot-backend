@@ -1,3 +1,4 @@
+﻿using Snapspot.Application.Models.Styles;
 using Snapspot.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,9 @@ namespace Snapspot.Application.Repositories
         Task DeleteAsync(Spot spot);
         Task<bool> ExistsAsync(Guid id);
         Task SaveChangesAsync();
+       
+        Task<IEnumerable<StyleDto>> GetStylesBySpotIdAsync(Guid spotId);
+        Task<bool> AssignStyleToSpotAsync(Guid styleId, Guid spotId);
+        Task<bool> RemoveStyleFromSpotIdAsync(Guid styleId, Guid spotId);
     }
 } 

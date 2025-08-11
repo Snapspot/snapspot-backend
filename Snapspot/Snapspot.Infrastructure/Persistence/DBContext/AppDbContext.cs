@@ -26,6 +26,8 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
         public DbSet<LikePost> LikePosts { get; set; }
         public DbSet<LikeComment> LikeComments { get; set; }
         public DbSet<SavePost> SavePosts { get; set; }
+        public DbSet<Style> Styles { get; set; }
+        public DbSet<StyleSpot> StyleSpots { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -288,6 +290,9 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
 
                 entity.Property(s => s.UpdatedAt)
                       .HasColumnType("datetime");
+                entity.Property(s => s.Time)
+                      .HasMaxLength(200)
+                      .IsRequired(false);
 
                 entity.HasOne(s => s.District)
                       .WithMany(d => d.Spots)
@@ -466,6 +471,58 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                       .WithMany(p => p.SavePosts)
                       .HasForeignKey(sp => sp.PostId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+            // Style configuration
+            modelBuilder.Entity<Style>().ToTable("Style");
+            modelBuilder.Entity<Style>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+
+                entity.Property(s => s.Category)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(s => s.Description)
+                      .IsRequired()
+                      .HasMaxLength(500);
+
+                entity.Property(s => s.Image)
+                      .HasMaxLength(500);
+
+                entity.Property(s => s.IsDeleted)
+                      .HasDefaultValue(false);
+
+                entity.Property(s => s.CreatedAt)
+                      .HasColumnType("datetime");
+
+                entity.Property(s => s.UpdatedAt)
+                      .HasColumnType("datetime");
+            });
+
+            // StyleSpot configuration (bảng trung gian)
+            modelBuilder.Entity<StyleSpot>().ToTable("StyleSpot");
+            modelBuilder.Entity<StyleSpot>(entity =>
+            {
+                entity.HasKey(ss => ss.Id);
+
+                entity.HasOne(ss => ss.Style)
+                      .WithMany(s => s.StyleSpots)
+                      .HasForeignKey(ss => ss.StyleId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(ss => ss.Spot)
+                      .WithMany(s => s.StyleSpots)
+                      .HasForeignKey(ss => ss.SpotId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.Property(ss => ss.IsDeleted)
+                      .HasDefaultValue(false);
+
+                entity.Property(ss => ss.CreatedAt)
+                      .HasColumnType("datetime");
+
+                entity.Property(ss => ss.UpdatedAt)
+                      .HasColumnType("datetime");
             });
         }
 
