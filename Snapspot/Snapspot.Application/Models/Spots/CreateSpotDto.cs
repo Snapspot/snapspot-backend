@@ -28,5 +28,6 @@ namespace Snapspot.Application.Models.Spots
 
         [StringLength(300)]
         public string ImageUrl { get; set; }
+        public string? Time { get; set; }
     }
 } 

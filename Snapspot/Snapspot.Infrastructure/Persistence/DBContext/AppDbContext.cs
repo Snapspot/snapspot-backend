@@ -290,6 +290,9 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
 
                 entity.Property(s => s.UpdatedAt)
                       .HasColumnType("datetime");
+                entity.Property(s => s.Time)
+                      .HasMaxLength(200)
+                      .IsRequired(false);
 
                 entity.HasOne(s => s.District)
                       .WithMany(d => d.Spots)

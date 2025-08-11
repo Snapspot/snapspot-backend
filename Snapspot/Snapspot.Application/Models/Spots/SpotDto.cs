@@ -21,5 +21,6 @@ namespace Snapspot.Application.Models.Spots
         public string Address { get; set; }
         public string ImageUrl { get; set; }
         public List<StyleDto> Styles { get; set; } = new List<StyleDto>();
+        public string? Time { get; set; }
     }
 } 

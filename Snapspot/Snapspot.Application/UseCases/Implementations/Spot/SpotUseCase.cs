@@ -47,7 +47,7 @@ namespace Snapspot.Application.UseCases.Implementations.Spot
                     };
                 }
 
-                // Lấy styles của spot
+                
                 var styles = await _spotRepository.GetStylesBySpotIdAsync(id);
 
                 var spotDto = new SpotDto
@@ -62,10 +62,11 @@ namespace Snapspot.Application.UseCases.Implementations.Spot
                     ProvinceName = spot.District?.Province?.Name ?? "",
                     Address = spot.Address,
                     ImageUrl = spot.ImageUrl,
+                    Time = spot.Time,
                     CreatedAt = spot.CreatedAt,
                     UpdatedAt = spot.UpdatedAt,
                     IsDeleted = spot.IsDeleted,
-                    Styles = styles.ToList() // Thêm .ToList()
+                    Styles = styles.ToList() 
                 };
 
                 return new ApiResponse<SpotDto>
@@ -111,6 +112,7 @@ namespace Snapspot.Application.UseCases.Implementations.Spot
                         ProvinceName = spot.District?.Province?.Name ?? "",
                         Address = spot.Address,
                         ImageUrl = spot.ImageUrl,
+                        Time = spot.Time,
                         CreatedAt = spot.CreatedAt,
                         UpdatedAt = spot.UpdatedAt,
                         IsDeleted = spot.IsDeleted,
@@ -178,6 +180,7 @@ namespace Snapspot.Application.UseCases.Implementations.Spot
                     DistrictId = createSpotDto.DistrictId,
                     Address = createSpotDto.Address,
                     ImageUrl = createSpotDto.ImageUrl,
+                    Time = createSpotDto.Time,
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     IsDeleted = false
@@ -198,6 +201,7 @@ namespace Snapspot.Application.UseCases.Implementations.Spot
                     ProvinceName = district.Province?.Name ?? "",
                     Address = spot.Address,
                     ImageUrl = spot.ImageUrl,
+                    Time = spot.Time,
                     CreatedAt = spot.CreatedAt,
                     UpdatedAt = spot.UpdatedAt,
                     IsDeleted = spot.IsDeleted
