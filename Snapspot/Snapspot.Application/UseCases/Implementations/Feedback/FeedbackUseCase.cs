@@ -52,7 +52,8 @@ namespace Snapspot.Application.UseCases.Implementations.Feedback
                     IsDeleted = feedback.IsDeleted,
                     AgencyId = feedback.AgencyId,
                     UserId = feedback.UserId,
-                    UserName = feedback.User?.Fullname ?? ""
+                    UserName = feedback.User?.Fullname ?? "",
+                    UserAvatarUrl = feedback.User?.AvatarUrl ?? ""
                 };
 
                 return new ApiResponse<FeedbackDto>
@@ -90,7 +91,8 @@ namespace Snapspot.Application.UseCases.Implementations.Feedback
                     IsDeleted = f.IsDeleted,
                     AgencyId = f.AgencyId,
                     UserId = f.UserId,
-                    UserName = f.User?.Fullname ?? ""
+                    UserName = f.User?.Fullname ?? "",
+                    UserAvatarUrl = f.User?.AvatarUrl ?? ""
                 }).ToList();
 
                 return new ApiResponse<IEnumerable<FeedbackDto>>
@@ -128,7 +130,8 @@ namespace Snapspot.Application.UseCases.Implementations.Feedback
                     IsDeleted = f.IsDeleted,
                     AgencyId = f.AgencyId,
                     UserId = f.UserId,
-                    UserName = f.User?.Fullname ?? ""
+                    UserName = f.User?.Fullname ?? "",
+                    UserAvatarUrl = f.User?.AvatarUrl ?? ""
                 }).ToList();
 
                 var pagedResponse = new PagingResponse<FeedbackDto>
@@ -202,7 +205,8 @@ namespace Snapspot.Application.UseCases.Implementations.Feedback
                     IsDeleted = feedback.IsDeleted,
                     AgencyId = feedback.AgencyId,
                     UserId = feedback.UserId,
-                    UserName = ""
+                    UserName = "",
+                    UserAvatarUrl = ""
                 };
 
                 return new ApiResponse<FeedbackDto>
@@ -271,7 +275,8 @@ namespace Snapspot.Application.UseCases.Implementations.Feedback
                     IsDeleted = feedback.IsDeleted,
                     AgencyId = feedback.AgencyId,
                     UserId = feedback.UserId,
-                    UserName = feedback.User?.Fullname ?? ""
+                    UserName = feedback.User?.Fullname ?? "",
+                    UserAvatarUrl = feedback.User?.AvatarUrl ?? ""
                 };
 
                 return new ApiResponse<FeedbackDto>
@@ -345,7 +350,8 @@ namespace Snapspot.Application.UseCases.Implementations.Feedback
                     IsDeleted = f.IsDeleted,
                     AgencyId = f.AgencyId,
                     UserId = f.UserId,
-                    UserName = f.User?.Fullname ?? ""
+                    UserName = f.User?.Fullname ?? "",
+                    UserAvatarUrl = f.User?.AvatarUrl ?? ""
                 }).ToList();
 
                 return new ApiResponse<IEnumerable<FeedbackDto>>
@@ -385,7 +391,8 @@ namespace Snapspot.Application.UseCases.Implementations.Feedback
                     IsDeleted = f.IsDeleted,
                     AgencyId = f.AgencyId,
                     UserId = f.UserId,
-                    UserName = f.User?.Fullname ?? ""
+                    UserName = f.User?.Fullname ?? "",
+                    UserAvatarUrl = f.User?.AvatarUrl ?? ""
                 }).ToList();
                 var pagedResponse = new PagingResponse<FeedbackDto>
                 {
@@ -429,7 +436,8 @@ namespace Snapspot.Application.UseCases.Implementations.Feedback
                     IsDeleted = f.IsDeleted,
                     AgencyId = f.AgencyId,
                     UserId = f.UserId,
-                    UserName = f.User?.Fullname ?? ""
+                    UserName = f.User?.Fullname ?? "",
+                    UserAvatarUrl = f.User?.AvatarUrl ?? ""
                 }).ToList();
 
                 return new ApiResponse<IEnumerable<FeedbackDto>>
@@ -469,7 +477,8 @@ namespace Snapspot.Application.UseCases.Implementations.Feedback
                     IsDeleted = f.IsDeleted,
                     AgencyId = f.AgencyId,
                     UserId = f.UserId,
-                    UserName = f.User?.Fullname ?? ""
+                    UserName = f.User?.Fullname ?? "",
+                    UserAvatarUrl = f.User?.AvatarUrl ?? ""
                 }).ToList();
                 var pagedResponse = new PagingResponse<FeedbackDto>
                 {

@@ -10,6 +10,7 @@ namespace Snapspot.Application.Models.Agencies
         public bool IsApproved { get; set; }
         public Guid UserId { get; set; }
         public string UserName { get; set; }
+        public string UserAvatarUrl { get; set; }
         public Guid AgencyId { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
