@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Snapspot.Application.Models.Provinces;
+using Snapspot.Application.UseCases.Interfaces.Analytic;
+using Snapspot.Application.UseCases.Interfaces.Province;
 using Snapspot.Shared.Common;
 using System.Collections.Generic;
 
@@ -10,73 +12,35 @@ namespace Snapspot.WebAPI.Controllers
     [ApiController]
     public class ManagerAnalyticsController : ControllerBase
     {
+        private readonly IAnalyticUseCase _analyticUseCase;
 
+
+        public ManagerAnalyticsController(IAnalyticUseCase analyticUseCase)
+        {
+            _analyticUseCase = analyticUseCase;
+        }
 
         [HttpGet("general-statistics")]
-        public IActionResult GetGeneralStatistics()
+        public async Task<IActionResult> GetGeneralStatistics()
         {
-            var data = new GeneralStatisticsDto(
-                    TotalUser: 1530,
-                    TotalCompany: 78,
-                    MonthyRevenue: 760000,
-                    TotalBlog: 94
-                );
-
-            var response = new ApiResponse<GeneralStatisticsDto>
-            {
-                Data = data,
-                Success = true,
-            };
+            var response = await _analyticUseCase.GetGeneralStatistics();
 
             return Ok(response);
         }
 
         [HttpGet("active-users")]
-        public IActionResult GetActiveUsers()
+        public async Task<IActionResult> GetActiveUsers()
         {
-            var rng = new Random();
-            var today = DateTime.Today;
-
-            var data = Enumerable.Range(0, 7)
-                .Select(i => new ActiveUserDto(
-                    Name: today.AddDays(-i).Day.ToString(),
-                    User: rng.Next(50, 201)
-                ))
-                .Reverse()
-                .ToList();
-
-            var response = new ApiResponse<List<ActiveUserDto>>
-            {
-                Data = data,
-                Success = true,
-                Message = "OK"
-            };
+            var response = await _analyticUseCase.GetActiveUsers();
 
             return Ok(response);
         }
-
-        public record BlogStatisticDto(string Name, int Blog);
+        
 
         [HttpGet("blogs")]
-        public IActionResult GetBlogs()
+        public async Task<IActionResult> GetBlogs()
         {
-            var rng = new Random();
-            var today = DateTime.Today;
-
-            var data = Enumerable.Range(0, 7)
-                .Select(i => new BlogStatisticDto(
-                    Name: today.AddDays(-i).Day.ToString(),
-                    Blog: rng.Next(0, 30) 
-                ))
-                .Reverse()
-                .ToList();
-
-            var response = new ApiResponse<List<BlogStatisticDto>>
-            {
-                Success = true,
-                Message = "OK",
-                Data = data
-            };
+            var response = await _analyticUseCase.GetStatisticNewBlogs();
 
             return Ok(response);
         }
@@ -144,12 +108,5 @@ namespace Snapspot.WebAPI.Controllers
         }
     }
 
-    public record GeneralStatisticsDto(
-        int TotalUser,
-        int TotalCompany,
-        decimal MonthyRevenue,
-        int TotalBlog
-    );
-
-    public record ActiveUserDto(string Name, int User);
+    
 }

@@ -13,5 +13,6 @@ namespace Snapspot.Application.Repositories
         Task<decimal> GetTotalRevenueAsync(Guid companyId);
         Task<Transaction> AddAsync(Transaction entity);
         Task<Transaction?> GetByTransactionCode(string TransactionCode);
+        Task<decimal> GetTotalAmountInCurrentMonth();
     }
 } 

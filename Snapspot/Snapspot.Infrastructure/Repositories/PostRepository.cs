@@ -240,5 +240,20 @@ namespace Snapspot.Infrastructure.Repositories
             return await _context.SavePosts
                 .AnyAsync(sp => sp.PostId == postId && sp.UserId == userId);
         }
+
+        public async Task<int> GetTotalBlogAsync()
+        {
+            return await _context.Posts.CountAsync();
+        }
+
+        public async Task<int> CountNewBlogByDate(DateTime date)
+        {
+            var specificDate = date.Date;
+
+            var count = await _context.Posts
+                .CountAsync(ua => ua.CreatedAt.Date == specificDate);
+
+            return count;
+        }
     }
 }

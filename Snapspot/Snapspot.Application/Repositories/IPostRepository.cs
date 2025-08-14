@@ -23,5 +23,7 @@ namespace Snapspot.Application.Repositories
         Task<bool> UnsavePostAsync(Guid postId, Guid userId);
         Task<IEnumerable<Post>> GetSavedPostsByUserIdAsync(Guid userId);
         Task<bool> IsPostSavedByUserAsync(Guid postId, Guid userId);
+        Task<int> GetTotalBlogAsync();
+        Task<int> CountNewBlogByDate(DateTime date);
     }
 }

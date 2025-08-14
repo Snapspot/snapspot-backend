@@ -13,5 +13,6 @@ namespace Snapspot.Application.Repositories
         Task<User?> LoginAsync(string email, string password);
         Task<User?> GetByUserIdAsync(Guid userId);
         Task<User?> GetByIdWithRoleAsync(Guid userId);
+        Task<int> GetTotalUserAsync();
     }
 }

@@ -23,6 +23,7 @@ namespace Snapspot.Application.UseCases.Implementations.Auth
         private readonly IUserRepository _userRepository;
         private readonly IGenericRepository<Role, Guid> _roleRepository;
         private readonly IJwtService _jwtService;
+        private readonly IActiveUserRepository _activeUserRepository;
 
         /// <summary>
         /// Constructor
@@ -32,13 +33,14 @@ namespace Snapspot.Application.UseCases.Implementations.Auth
         /// <param name="userRepository"></param>
         /// <param name="roleRepository"></param>
         /// <param name="jwtService"></param>
-        public AuthenticationUseCase(RegisterRequestValidator registerRequestValidator, LoginRequestValidator loginRequestValidator, IUserRepository userRepository, IGenericRepository<Role, Guid> roleRepository, IJwtService jwtService)
+        public AuthenticationUseCase(RegisterRequestValidator registerRequestValidator, LoginRequestValidator loginRequestValidator, IUserRepository userRepository, IGenericRepository<Role, Guid> roleRepository, IJwtService jwtService, IActiveUserRepository activeUserRepository)
         {
             _registerRequestValidator = registerRequestValidator;
             _loginRequestValidator = loginRequestValidator;
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _jwtService = jwtService;
+            _activeUserRepository = activeUserRepository;
         }
 
         public async Task<ApiResponse<TokenResponse>> LoginAsync(LoginRequest request)
@@ -60,6 +62,8 @@ namespace Snapspot.Application.UseCases.Implementations.Auth
                 AccessToken = _jwtService.GenerateAccessToken(user.Id, user.Role.Name),
                 RefreshToken = await _jwtService.GenerateRefreshTokenAsync(user.Id),
             };
+
+            await _activeUserRepository.CheckLogin(user.Id); //Mark user as login today
 
             return new ApiResponse<TokenResponse>
             {

@@ -82,5 +82,10 @@ namespace Snapspot.Infrastructure.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+        public async Task<int> GetTotalCompanyAsync()
+        {
+            return await _context.Companies.CountAsync();
+        }
     }
 } 

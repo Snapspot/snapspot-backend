@@ -29,6 +29,8 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
         public DbSet<Style> Styles { get; set; }
         public DbSet<StyleSpot> StyleSpots { get; set; }
 
+        public DbSet<UserActive> UserActives { get; set; }
+
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -524,6 +526,29 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                 entity.Property(ss => ss.UpdatedAt)
                       .HasColumnType("datetime");
             });
+
+            modelBuilder.Entity<UserActive>().ToTable("UserActive");
+            modelBuilder.Entity<UserActive>(entity =>
+            {
+                entity.HasKey(u => u.Id);
+
+                entity.Property(u => u.IsDeleted)
+                  .HasDefaultValue(false);
+
+                entity.Property(u => u.CreatedAt)
+                   .HasColumnType("datetime");
+
+                entity.Property(u => u.UpdatedAt)
+                      .HasColumnType("datetime");
+
+                entity.Property(ua => ua.LoginDate)
+                      .HasColumnType("date");
+
+                entity.HasOne(ua => ua.User)
+                      .WithMany()
+                      .HasForeignKey(ua => ua.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
         }
 
         public override int SaveChanges()
@@ -549,14 +574,14 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
 
                 if (entry.State == EntityState.Added)
                 {
-                    entity.CreatedAt = DateTime.UtcNow;
-                    entity.UpdatedAt = DateTime.UtcNow;
+                    entity.CreatedAt = DateTime.Now;
+                    entity.UpdatedAt = DateTime.Now;
                 }
                 else if (entry.State == EntityState.Modified)
                 {
                     entry.Property(nameof(BaseEntity<Guid>.CreatedAt)).IsModified = false;
 
-                    entity.UpdatedAt = DateTime.UtcNow;
+                    entity.UpdatedAt = DateTime.Now;
                 }
             }
         }

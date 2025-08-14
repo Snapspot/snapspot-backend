@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Snapspot.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,6 @@ namespace Snapspot.Application.Repositories
         Task DeleteAsync(Company company);
         Task<bool> ExistsAsync(Guid id);
         Task SaveChangesAsync();
+        Task<int> GetTotalCompanyAsync();
     }
 } 

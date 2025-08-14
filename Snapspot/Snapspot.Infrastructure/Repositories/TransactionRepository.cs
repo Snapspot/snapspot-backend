@@ -233,5 +233,16 @@ namespace Snapspot.Infrastructure.Repositories
                 .FirstOrDefaultAsync(t => t.TransactionCode == TransactionCode && !t.IsDeleted);
            
         }
+
+        public async Task<decimal> GetTotalAmountInCurrentMonth()
+        {
+            var firstDayOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+
+            var totalAmount = await _context.Transactions
+                .Where(t => t.CreatedAt >= firstDayOfMonth)
+                .SumAsync(t => t.Amount);
+
+            return totalAmount;
+        }
     }
 } 

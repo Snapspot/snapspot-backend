@@ -33,6 +33,11 @@ namespace Snapspot.Infrastructure.Persistence.Repositories
             return await _context.Users.AsNoTracking().Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == userId && !x.IsDeleted);
         }
 
+        public async Task<int> GetTotalUserAsync()
+        {
+            return await _context.Users.CountAsync();
+        }
+
         public async Task<User?> LoginAsync(string email, string password)
         {
             var user = await _context.Users.Include(x => x.Role).AsNoTracking().FirstOrDefaultAsync(x => x.Email == email && !x.IsDeleted);
