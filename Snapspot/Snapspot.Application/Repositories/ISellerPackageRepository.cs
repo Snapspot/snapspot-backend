@@ -14,5 +14,10 @@ namespace Snapspot.Application.Repositories
         Task DeleteAsync(SellerPackage sellerPackage);
         Task<bool> ExistsAsync(Guid id);
         Task SaveChangesAsync();
+        Task<List<PackageCoverageDto>> GetPackageSalesCoverageAsync();
+
+        Task<object> GetPackageRevenue();
+
+        public record PackageCoverageDto(string Name, int Value);
     }
 } 

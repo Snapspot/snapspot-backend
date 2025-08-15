@@ -87,5 +87,16 @@ namespace Snapspot.Infrastructure.Repositories
         {
             return await _context.Companies.CountAsync();
         }
+
+        public async Task<int> CountNewCompanyInMonthAsync()
+        {
+            var firstDayOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+
+            var totalAmount = await _context.Companies
+                .Where(t => t.CreatedAt >= firstDayOfMonth)
+                .CountAsync();
+
+            return totalAmount;
+        }
     }
 } 

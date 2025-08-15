@@ -5,6 +5,7 @@ using Snapspot.Application.UseCases.Interfaces.Analytic;
 using Snapspot.Application.UseCases.Interfaces.Province;
 using Snapspot.Shared.Common;
 using System.Collections.Generic;
+using static Snapspot.Application.Repositories.ISellerPackageRepository;
 
 namespace Snapspot.WebAPI.Controllers
 {
@@ -44,65 +45,29 @@ namespace Snapspot.WebAPI.Controllers
 
             return Ok(response);
         }
-        public record MonthyStatisticsDto(int NewUser, int NewCompany, int NewBlog);
 
         [HttpGet("monthy-statistics")]
-        public IActionResult GetMonthyStatistics()
+        public async Task<IActionResult> GetMonthyStatistics()
         {
-            var data = new MonthyStatisticsDto(
-                NewUser: 14,
-                NewCompany: 3,
-                NewBlog: 34
-            );
-
-            var response = new ApiResponse<MonthyStatisticsDto>
-            {
-                Success = true,
-                Message = "OK",
-                Data = data
-            };
+            var response = await _analyticUseCase.GetMonthyStatistics();
 
             return Ok(response);
         }
-
-        public record PackageCoverageDto(string Name, int Value);
 
         [HttpGet("package-coverage")]
-        public IActionResult GetPackageCoverage()
+        public async Task<IActionResult> GetPackageCoverage()
         {
-            var data = new List<PackageCoverageDto>
-            {
-                new("Gói Cơ bản", 23),
-                new("Gói cao cấp", 7),
-                new("Gói tiêu chuẩn", 9)
-            };
-
-            var response = new ApiResponse<List<PackageCoverageDto>>
-            {
-                Success = true,
-                Message = "OK",
-                Data = data
-            };
+            var response = await _analyticUseCase.GetPackageCoverage();
 
             return Ok(response);
         }
 
-        public record PackageRevenueDto(string Name, decimal Uv, decimal Pv, decimal Atm);
+       
 
         [HttpGet("package-revenue")]
-        public IActionResult GetPackageRevenue()
+        public async Task<IActionResult> GetPackageRevenue()
         {
-            var data = new List<PackageRevenueDto>
-            {
-                new("Doanh thu", 144000, 98000, 80000)
-            };
-
-            var response = new ApiResponse<List<PackageRevenueDto>>
-            {
-                Success = true,
-                Message = "OK",
-                Data = data
-            };
+            var response = await _analyticUseCase.GetPackageRevenue();
 
             return Ok(response);
         }

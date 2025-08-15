@@ -255,5 +255,16 @@ namespace Snapspot.Infrastructure.Repositories
 
             return count;
         }
+
+        public async Task<int> CountNewBlogInMonthAsync()
+        {
+            var firstDayOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+
+            var totalAmount = await _context.Posts
+                .Where(t => t.CreatedAt >= firstDayOfMonth)
+                .CountAsync();
+
+            return totalAmount;
+        }
     }
 }

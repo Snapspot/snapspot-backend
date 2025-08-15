@@ -17,5 +17,7 @@ namespace Snapspot.Application.Repositories
         Task<bool> ExistsAsync(Guid id);
         Task SaveChangesAsync();
         Task<int> GetTotalCompanyAsync();
+        Task<int> CountNewCompanyInMonthAsync();
+
     }
 } 

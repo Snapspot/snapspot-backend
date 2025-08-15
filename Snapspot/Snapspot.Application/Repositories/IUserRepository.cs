@@ -14,5 +14,6 @@ namespace Snapspot.Application.Repositories
         Task<User?> GetByUserIdAsync(Guid userId);
         Task<User?> GetByIdWithRoleAsync(Guid userId);
         Task<int> GetTotalUserAsync();
+        Task<int> CountNewUserInMonthAsync();
     }
 }

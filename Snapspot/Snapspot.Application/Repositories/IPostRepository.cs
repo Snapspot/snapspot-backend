@@ -25,5 +25,6 @@ namespace Snapspot.Application.Repositories
         Task<bool> IsPostSavedByUserAsync(Guid postId, Guid userId);
         Task<int> GetTotalBlogAsync();
         Task<int> CountNewBlogByDate(DateTime date);
+        Task<int> CountNewBlogInMonthAsync();
     }
 }

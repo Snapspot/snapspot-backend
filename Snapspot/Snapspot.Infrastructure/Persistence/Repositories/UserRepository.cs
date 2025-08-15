@@ -16,6 +16,17 @@ namespace Snapspot.Infrastructure.Persistence.Repositories
     /// <param name="context"></param>
     public class UserRepository(AppDbContext context) : GenericRepository<User, Guid>(context), IUserRepository
     {
+        public async Task<int> CountNewUserInMonthAsync()
+        {
+            var firstDayOfMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+
+            var totalAmount = await _context.Users
+                .Where(t => t.CreatedAt >= firstDayOfMonth)
+                .CountAsync();
+
+            return totalAmount;
+        }
+
         public async Task<bool> ExistsByEmailAsync(string email)
         {
             return await _context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email) != null;
