@@ -30,6 +30,7 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
         public DbSet<StyleSpot> StyleSpots { get; set; }
 
         public DbSet<UserActive> UserActives { get; set; }
+        public DbSet<AgencyView> AgencyViews { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -547,6 +548,34 @@ namespace Snapspot.Infrastructure.Persistence.DBContext
                 entity.HasOne(ua => ua.User)
                       .WithMany()
                       .HasForeignKey(ua => ua.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<AgencyView>().ToTable("AgencyView");
+            modelBuilder.Entity<AgencyView>(entity =>
+            {
+                entity.HasKey(u => u.Id);
+
+                entity.Property(u => u.IsDeleted)
+                  .HasDefaultValue(false);
+
+                entity.Property(u => u.CreatedAt)
+                   .HasColumnType("datetime");
+
+                entity.Property(u => u.UpdatedAt)
+                      .HasColumnType("datetime");
+
+                entity.Property(ua => ua.ViewDate)
+                      .HasColumnType("date");
+
+                entity.HasOne(ua => ua.User)
+                      .WithMany()
+                      .HasForeignKey(ua => ua.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(ua => ua.Agency)
+                      .WithMany()
+                      .HasForeignKey(ua => ua.AgencyId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
         }

@@ -126,6 +126,41 @@ namespace Snapspot.Infrastructure.Migrations
                     b.ToTable("AgencyService", (string)null);
                 });
 
+            modelBuilder.Entity("Snapspot.Domain.Entities.AgencyView", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AgencyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ViewDate")
+                        .HasColumnType("date");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgencyId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AgencyView", (string)null);
+                });
+
             modelBuilder.Entity("Snapspot.Domain.Entities.Comment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -888,6 +923,25 @@ namespace Snapspot.Infrastructure.Migrations
                     b.Navigation("Company");
 
                     b.Navigation("Spot");
+                });
+
+            modelBuilder.Entity("Snapspot.Domain.Entities.AgencyView", b =>
+                {
+                    b.HasOne("Snapspot.Domain.Entities.Agency", "Agency")
+                        .WithMany()
+                        .HasForeignKey("AgencyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Snapspot.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Agency");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Snapspot.Domain.Entities.Comment", b =>
