@@ -100,6 +100,9 @@ namespace Snapspot.Application.UseCases.Implementations.Auth
                 Dob = request.Dob,
                 AvatarUrl = "https://th.bing.com/th/id/OIP.a9qb_VLfFjvlrDfc-iNLpgHaHa?rs=1&pid=ImgDetMain",
                 RoleId = role.Id,
+                Bio = "", 
+                Rating = 0.0f, 
+                IsApproved = false 
             };
 
             _ = await _userRepository.AddAsync(user);
