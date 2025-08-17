@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.UseCases.Interfaces.Analytic;
+using Snapspot.Domain.Entities;
 using Snapspot.Shared.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using static Snapspot.Application.Repositories.ISellerPackageRepository;
@@ -20,8 +23,10 @@ namespace Snapspot.Application.UseCases.Implementations.Analytic
         private readonly IPostRepository _postRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly ISellerPackageRepository _sellerPackageRepository;
+        private readonly IAgencyViewRepository _agencyViewRepository;
+        private readonly IAgencyRepository _agencyRepository;
 
-        public AnalyticUseCase(IActiveUserRepository activeUserRepository, IUserRepository userRepository, ICompanyRepository companyRepository, IPostRepository postRepository, ITransactionRepository transactionRepository, ISellerPackageRepository sellerPackageRepository)
+        public AnalyticUseCase(IActiveUserRepository activeUserRepository, IUserRepository userRepository, ICompanyRepository companyRepository, IPostRepository postRepository, ITransactionRepository transactionRepository, ISellerPackageRepository sellerPackageRepository, IAgencyViewRepository agencyViewRepository, IAgencyRepository agencyRepository)
         {
             _activeUserRepository = activeUserRepository;
             _userRepository = userRepository;
@@ -29,6 +34,8 @@ namespace Snapspot.Application.UseCases.Implementations.Analytic
             _postRepository = postRepository;
             _transactionRepository = transactionRepository;
             _sellerPackageRepository = sellerPackageRepository;
+            _agencyViewRepository = agencyViewRepository;
+            _agencyRepository = agencyRepository;
         }
 
         public async Task<ApiResponse<List<PackageCoverageDto>>> GetPackageCoverage()
@@ -149,6 +156,63 @@ namespace Snapspot.Application.UseCases.Implementations.Analytic
             };
 
             return response;
+        }
+
+        public record AnalyticCompanyViewDto(string date, int views);
+
+        public async Task<ApiResponse<List<AnalyticCompanyViewDto>>> GetViewsData(string? userId)
+        {
+            var rng = new Random();
+            var today = DateTime.Today;
+
+            var data = new List<AnalyticCompanyViewDto>();
+
+            for (int i = 6; i >= 0; i--)
+            {
+                var specificDate = today.AddDays(-i);
+                var fakeViews = rng.Next(50, 100);
+
+                data.Add(new AnalyticCompanyViewDto(specificDate.Day.ToString(), fakeViews));
+            }
+
+            var company = await GetCompanyByUser(userId);
+            if(company != null)
+            {
+                var agencies = await _agencyRepository.GetByCompanyIdAsync(company.Id);
+
+                var newlist = new List<AnalyticCompanyViewDto>();
+                for (int i = 6; i >= 0; i--)
+                {
+                    int sum = 0;
+                    var date = today.AddDays(-i);
+                    foreach(var agency in agencies)
+                    {
+                        var view = await _agencyViewRepository.CountViewAgencyByDate(agency.Id, date);
+                        sum += view;
+                    }          
+                    newlist.Add(new AnalyticCompanyViewDto(date.Day.ToString(), sum));
+                }
+                
+                data = newlist;
+            }
+
+            var response = new ApiResponse<List<AnalyticCompanyViewDto>> ()
+            {
+                Success = true,
+                Message = "OK",
+                Data = data
+            };
+            return response;
+        }
+
+
+        private async Task<Domain.Entities.Company?> GetCompanyByUser(string userIdString)
+        {
+            var userId = Guid.Parse(userIdString);
+            var user = await _userRepository.GetByUserIdAsync(userId);
+            if (user == null) return null;
+            var company = await _companyRepository.GetByUserIdAsync(user.Id);
+            return company;
         }
     }
 }

@@ -17,6 +17,7 @@ namespace Snapspot.Application.UseCases.Interfaces.Analytic
         Task<ApiResponse<AnalyticMonthyStatisticsDto>> GetMonthyStatistics();
         Task<ApiResponse<List<PackageCoverageDto>>> GetPackageCoverage();
         Task<ApiResponse<object>> GetPackageRevenue();
+        Task<ApiResponse<List<AnalyticCompanyViewDto>>> GetViewsData(string? userId);
 
     }
 }

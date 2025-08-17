@@ -19,6 +19,16 @@ namespace Snapspot.Infrastructure.Repositories
             _context = context;
         }
 
+        public async Task<int> CountViewAgencyByDate(Guid agencyId, DateTime date)
+        {
+            var specificDate = date.Date;
+
+            var count = await _context.AgencyViews
+                .CountAsync(av => av.AgencyId == agencyId && av.ViewDate.Date == specificDate);
+
+            return count;
+        }
+
         public async Task Create(AgencyView newItem)
         {
             await _context.AgencyViews.AddAsync(newItem);

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Snapspot.Application.UseCases.Interfaces.Analytic;
 using Snapspot.Shared.Common;
+using System.Security.Claims;
 
 namespace Snapspot.WebAPI.Controllers
 {
@@ -8,26 +10,17 @@ namespace Snapspot.WebAPI.Controllers
     [ApiController]
     public class ThirdPartyAnalyticController : ControllerBase
     {
+        private readonly IAnalyticUseCase _analyticUseCase;
+        public ThirdPartyAnalyticController(IAnalyticUseCase analyticUseCase)
+        {
+            _analyticUseCase = analyticUseCase;
+        }
+
         [HttpGet("views")]
         public async Task<IActionResult> GetViewsData()
         {
-            var data = new List<object>
-            {
-                new { date = "11", views = 2500 },
-                new { date = "12", views = 1800 },
-                new { date = "13", views = 9500 },
-                new { date = "14", views = 4200 },
-                new { date = "15", views = 3000 },
-                new { date = "16", views = 4500 },
-                new { date = "17", views = 4000 }
-            };
-
-            var response = new ApiResponse<object>()
-            {
-                Success = true,
-                Message = "OK",
-                Data = data
-            };
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var response = await _analyticUseCase.GetViewsData(userId);
             return Ok(response);
         }
 

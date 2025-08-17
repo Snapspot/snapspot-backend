@@ -11,5 +11,6 @@ namespace Snapspot.Application.Repositories
     {
         Task Create(AgencyView newItem);
         Task<bool> IsExist(Guid agencyId, Guid userId);
+        Task<int> CountViewAgencyByDate(Guid agencyId, DateTime date);
     }
 }
