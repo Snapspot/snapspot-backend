@@ -48,7 +48,8 @@ namespace Snapspot.WebAPI.Controllers
         {
             try
             {
-                var result = await _agencyUseCase.GetByIdAsync(id);
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var result = await _agencyUseCase.GetByIdAsync(id, userId);
                 return Ok(result);
             }
             catch (Exception ex)

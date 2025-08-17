@@ -10,7 +10,7 @@ namespace Snapspot.Application.UseCases.Interfaces.Agency
     public interface IAgencyUseCase
     {
         // CRUD Operations
-        Task<ApiResponse<AgencyDto>> GetByIdAsync(Guid id);
+        Task<ApiResponse<AgencyDto>> GetByIdAsync(Guid id, string? userId);
         Task<ApiResponse<IEnumerable<AgencyDto>>> GetAllAsync();
         Task<ApiResponse<AgencyCreationResponse>> CreateAsync(CreateAgencyDto createAgencyDto, string? userId);
         Task<ApiResponse<AgencyDto>> UpdateAsync(Guid id, UpdateAgencyDto updateAgencyDto);

@@ -51,6 +51,7 @@ namespace Snapspot.Infrastructure.Extensions
             _ = services.AddScoped<IStyleRepository, StyleRepository>();
 
             _ = services.AddScoped<IActiveUserRepository, ActiveUserRepository>();
+            _ = services.AddScoped<IAgencyViewRepository, AgencyViewRepository>();
 
             return services;
         }

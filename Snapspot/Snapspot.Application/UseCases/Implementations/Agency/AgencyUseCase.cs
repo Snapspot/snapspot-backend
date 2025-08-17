@@ -3,6 +3,7 @@ using Snapspot.Application.Models.Responses.Agency;
 using Snapspot.Application.Models.Responses.ThirdParty;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.UseCases.Interfaces.Agency;
+using Snapspot.Domain.Entities;
 using Snapspot.Shared.Common;
 using System;
 using System.Collections.Generic;
@@ -18,22 +19,25 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
         private readonly ISpotRepository _spotRepository;
         private readonly IUserRepository _userRepository;
         private readonly IAgencyServiceRepository _agencyServiceRepository;
+        private readonly IAgencyViewRepository _agencyViewRepository;
 
         public AgencyUseCase(
             IAgencyRepository agencyRepository,
             ICompanyRepository companyRepository,
             ISpotRepository spotRepository,
             IUserRepository userRepository,
-            IAgencyServiceRepository agencyServiceRepository)
+            IAgencyServiceRepository agencyServiceRepository,
+            IAgencyViewRepository agencyViewRepository)
         {
             _agencyRepository = agencyRepository;
             _companyRepository = companyRepository;
             _spotRepository = spotRepository;
             _userRepository = userRepository;
             _agencyServiceRepository = agencyServiceRepository;
+            _agencyViewRepository = agencyViewRepository;
         }
 
-        public async Task<ApiResponse<AgencyDto>> GetByIdAsync(Guid id)
+        public async Task<ApiResponse<AgencyDto>> GetByIdAsync(Guid id, string? userId)
         {
             try
             {
@@ -46,6 +50,30 @@ namespace Snapspot.Application.UseCases.Implementations.Agency
                         MessageId = MessageId.E0000,
                         Message = "Agency not found"
                     };
+                }
+
+                if(userId != null)
+                {
+                    try
+                    {
+                        Guid userGuid = Guid.Parse(userId);
+                       
+                        bool isExist = await _agencyViewRepository.IsExist(agency.Id, userGuid);
+                        if (!isExist)
+                        {
+                            var newItem = new AgencyView
+                            {
+                                UserId = userGuid,
+                                AgencyId = agency.Id,
+                                ViewDate = DateTime.Now,
+                            };
+                            await _agencyViewRepository.Create(newItem);
+                        }                       
+                    }
+                    catch (FormatException)
+                    {
+                        
+                    }
                 }
 
                 var agencyDto = new AgencyDto
