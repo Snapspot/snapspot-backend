@@ -13,5 +13,6 @@ namespace Snapspot.Application.Models.Requests.Auth
         public string ConfirmPassword { get; set; }
         public string PhoneNumber { get; set; }
         public DateTime Dob { get; set; }
+        public string Role { get; set; }
     }
 }

@@ -34,6 +34,15 @@ namespace Snapspot.Application.Validators.Auth
             RuleFor(x => x.Dob)
                 .NotEmpty().WithMessage("Date of Birth is required.")
                 .LessThan(DateTime.UtcNow).WithMessage("Date of Birth must be in the past.");
+
+            RuleFor(x => x.Role)
+                .NotEmpty().WithMessage("Role is required.")
+                .Must(role =>
+                    role != null &&
+                    (role.Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
+                     role.Equals("User", StringComparison.OrdinalIgnoreCase) ||
+                     role.Equals("ThirdParty", StringComparison.OrdinalIgnoreCase)))
+                .WithMessage("Role must be 'Admin', 'User' or 'ThirdParty'.");
         }
     }
 }

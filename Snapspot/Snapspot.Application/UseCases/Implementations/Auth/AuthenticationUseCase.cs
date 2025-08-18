@@ -78,14 +78,25 @@ namespace Snapspot.Application.UseCases.Implementations.Auth
         {
             await _registerRequestValidator.ValidateAndThrowAsync(request);
 
-            var role = (await _roleRepository.FindAsync(x => x.Name == RoleEnum.Admin.ToString(), asNoTracking: true)).FirstOrDefault();
+            // Role from request; default to User if missing
+            var requestedRole = string.IsNullOrWhiteSpace(request.Role) ? "User" : request.Role;
+
+            if (!Enum.TryParse<RoleEnum>(requestedRole, true, out var roleEnum))
+            {
+                roleEnum = RoleEnum.User;
+            }
+
+            var role = (await _roleRepository.FindAsync(
+                x => x.Name == roleEnum.ToString(),
+                asNoTracking: true)).FirstOrDefault();
+
             if (role == null)
             {
                 return new ApiResponse<string>
                 {
                     Success = false,
                     MessageId = MessageId.E0000,
-                    Message = "Role doesn't exists."
+                    Message = "Requested role doesn't exist."
                 };
             }
 
@@ -100,9 +111,9 @@ namespace Snapspot.Application.UseCases.Implementations.Auth
                 Dob = request.Dob,
                 AvatarUrl = "https://th.bing.com/th/id/OIP.a9qb_VLfFjvlrDfc-iNLpgHaHa?rs=1&pid=ImgDetMain",
                 RoleId = role.Id,
-                Bio = "", 
-                Rating = 0.0f, 
-                IsApproved = false 
+                Bio = "",
+                Rating = 0.0f,
+                IsApproved = false
             };
 
             _ = await _userRepository.AddAsync(user);
