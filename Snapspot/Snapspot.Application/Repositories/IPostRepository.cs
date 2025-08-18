@@ -26,5 +26,6 @@ namespace Snapspot.Application.Repositories
         Task<int> GetTotalBlogAsync();
         Task<int> CountNewBlogByDate(DateTime date);
         Task<int> CountNewBlogInMonthAsync();
+        Task<IEnumerable<Post>> GetPostsByUserIdAsync(Guid userId);
     }
 }

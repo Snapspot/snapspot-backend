@@ -266,5 +266,19 @@ namespace Snapspot.Infrastructure.Repositories
 
             return totalAmount;
         }
+
+        public async Task<IEnumerable<Post>> GetPostsByUserIdAsync(Guid userId)
+        {
+            return await _context.Posts
+                .Where(p => p.UserId == userId)
+                .Include(p => p.User)
+                .Include(p => p.Spot)
+                .Include(p => p.Images)
+                .Include(p => p.LikePosts)
+                .Include(p => p.Comments)
+                .Include(p => p.SavePosts)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+        }
     }
 }
