@@ -237,6 +237,43 @@ namespace Snapspot.Application.UseCases.Implementations.Analytic
             return response;
         }
 
+
+        public record AnalyticCompanyInfoDto(string avarta, double rating, int agencyCount, string companyName, string email, string phoneNumber, string address);
+        public async Task<ApiResponse<AnalyticCompanyInfoDto>> GetCompanyInfo(string? userId)
+        {
+            var data = new AnalyticCompanyInfoDto(
+                avarta: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfqRWbHHwmAgqXU0XUu9jaByZiu6JNHabfhA&s",
+                rating: 5,
+                agencyCount: 4,
+                companyName: "FPT Viet Nam",
+                email: "fpt@gmail.com.vn",
+                phoneNumber: "090909091203",
+                address: "12321 Nguyen abc, bac, Thủ Đức, Viet Nam"
+            );
+            var company = await GetCompanyByUser(userId);
+            if (company != null)
+            {
+                var agencies = await _agencyRepository.GetByCompanyIdAsync(company.Id);
+
+                data = new AnalyticCompanyInfoDto(
+                    avarta: company.AvatarUrl,
+                    rating: company.Rating,
+                    agencyCount: agencies.Count(),
+                    companyName: company.Name,
+                    email: company.Email,
+                    phoneNumber: company.PhoneNumber,
+                    address: company.Address
+                );
+            }
+            var response = new ApiResponse<AnalyticCompanyInfoDto>()
+            {
+                Success = true,
+                Message = "OK",
+                Data = data
+            };
+            return response;
+        }
+
         private async Task<Domain.Entities.Company?> GetCompanyByUser(string userIdString)
         {
             var userId = Guid.Parse(userIdString);

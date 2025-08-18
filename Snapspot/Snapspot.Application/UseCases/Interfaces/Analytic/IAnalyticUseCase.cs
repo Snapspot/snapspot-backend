@@ -19,6 +19,7 @@ namespace Snapspot.Application.UseCases.Interfaces.Analytic
         Task<ApiResponse<object>> GetPackageRevenue();
         Task<ApiResponse<List<AnalyticCompanyViewDto>>> GetViewsData(string? userId);
         Task<ApiResponse<List<AnalyticAgenciesDataDto>>> GetAgenciesData(string? userId);
+        Task<ApiResponse<AnalyticCompanyInfoDto>> GetCompanyInfo(string? userId);
 
     }
 }

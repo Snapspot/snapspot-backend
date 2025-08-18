@@ -35,23 +35,8 @@ namespace Snapspot.WebAPI.Controllers
         [HttpGet("company-info")]
         public async Task<IActionResult> GetCompanyInfo()
         {
-            var data = new
-            {
-                avarta = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfqRWbHHwmAgqXU0XUu9jaByZiu6JNHabfhA&s",
-                rating = 5,
-                agencyCount = 4,
-                companyName = "FPT Viet Nam",
-                email = "fpt@gmail.com.vn",
-                phoneNumber = "090909091203",
-                address = "12321 Nguyen abc, bac, Thủ Đức, Viet Nam",
-                website = "https://fpt.com.vn"
-            };
-            var response = new ApiResponse<object>()
-            {
-                Success = true,
-                Message = "OK",
-                Data = data
-            };
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var response = await _analyticUseCase.GetCompanyInfo(userId);
             return Ok(response);
         }
     }
