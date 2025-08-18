@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Snapspot.Application.Repositories;
 using Snapspot.Application.UseCases.Interfaces.Analytic;
@@ -205,6 +206,36 @@ namespace Snapspot.Application.UseCases.Implementations.Analytic
             return response;
         }
 
+        public record AnalyticAgenciesDataDto(Guid id, string name, int views, double rating);
+
+        public async Task<ApiResponse<List<AnalyticAgenciesDataDto>>> GetAgenciesData(string? userId) {
+            var today = DateTime.Today;
+            var data = new List<AnalyticAgenciesDataDto>();
+            var company = await GetCompanyByUser(userId);
+            if (company != null)
+            {
+                var agencies = await _agencyRepository.GetByCompanyIdAsync(company.Id);
+                foreach (var agency in agencies)
+                {
+                    int sum = 0;
+                    for (int i = 6; i >= 0; i--)
+                    {
+                        var date = today.AddDays(-i);
+                        var view = await _agencyViewRepository.CountViewAgencyByDate(agency.Id, date);
+                        sum += view;
+                    }
+                    data.Add(new AnalyticAgenciesDataDto(agency.Id, agency.Name, sum, agency.Rating));
+                }
+            }
+
+            var response = new ApiResponse<List<AnalyticAgenciesDataDto>>()
+            {
+                Success = true,
+                Message = "OK",
+                Data = data
+            };
+            return response;
+        }
 
         private async Task<Domain.Entities.Company?> GetCompanyByUser(string userIdString)
         {

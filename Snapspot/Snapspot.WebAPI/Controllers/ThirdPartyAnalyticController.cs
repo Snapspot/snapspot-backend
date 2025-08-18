@@ -27,25 +27,8 @@ namespace Snapspot.WebAPI.Controllers
         [HttpGet("agencies")]
         public async Task<IActionResult> GetAgenciesData()
         {
-            var data = new List<object>
-            {
-                new { id = 1, name = "Chi nhánh Quận 1", views = 845, rating = 4.5 },
-                new { id = 2, name = "Chi nhánh Thủ Đức", views = 612, rating = 4.2 },
-                new { id = 3, name = "Chi nhánh Cầu Giấy", views = 978, rating = 4.8 },
-                new { id = 4, name = "Chi nhánh Hải Châu", views = 451, rating = 3.9 },
-                new { id = 5, name = "Chi nhánh Đống Đa", views = 763, rating = 4.1 },
-                new { id = 6, name = "Chi nhánh Bình Thạnh", views = 520, rating = 4.6 },
-                new { id = 7, name = "Chi nhánh Nam Từ Liêm", views = 890, rating = 4.7 },
-                new { id = 8, name = "Chi nhánh Tân Bình", views = 687, rating = 4.0 },
-                new { id = 9, name = "Chi nhánh 11", views = 915, rating = 4.3 },
-                new { id = 10, name = "Chi nhánh 7", views = 740, rating = 4.4 }
-            };
-            var response = new ApiResponse<object>()
-            {
-                Success = true,
-                Message = "OK",
-                Data = data
-            };
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var response = await _analyticUseCase.GetAgenciesData(userId);
             return Ok(response);
         }
 
