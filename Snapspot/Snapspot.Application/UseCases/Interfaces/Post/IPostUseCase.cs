@@ -23,5 +23,6 @@ namespace Snapspot.Application.UseCases.Interfaces.Post
         Task<ApiResponse<bool>> UnsavePostAsync(Guid postId, Guid userId);
         Task<ApiResponse<List<SavedPostDto>>> GetSavedPostsAsync(Guid userId);
         Task<ApiResponse<bool>> IsPostSavedAsync(Guid postId, Guid userId);
+        Task<ApiResponse<List<PostResponseDto>>> GetMyPostsAsync(Guid userId);  
     }
 }

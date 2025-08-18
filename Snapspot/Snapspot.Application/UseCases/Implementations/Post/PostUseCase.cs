@@ -641,5 +641,47 @@ namespace Snapspot.Application.UseCases.Implementations.Post
                 };
             }
         }
+
+        public async Task<ApiResponse<List<PostResponseDto>>> GetMyPostsAsync(Guid userId)
+        {
+            try
+            {
+                var posts = await _postRepository.GetPostsByUserIdAsync(userId);
+                var postDtos = posts.Select(p => new PostResponseDto
+                {
+                    PostId = p.Id.ToString(),
+                    User = new UserInfoDto
+                    {
+                        UserId = p.UserId,
+                        Name = p.User?.Fullname,
+                        SpotId = p.SpotId,
+                        Spotname = p.Spot?.Name,
+                        Avatar = p.User?.AvatarUrl
+                    },
+                    Content = p.Content,
+                    ImageUrl = p.Images?.Select(img => img.Uri).ToList() ?? new List<string>(),
+                    Likes = p.LikePosts?.Count ?? 0,
+                    Comments = p.Comments?.Count ?? 0,
+                    Timestamp = p.CreatedAt
+                }).ToList();
+
+                return new ApiResponse<List<PostResponseDto>>
+                {
+                    Data = postDtos,
+                    Success = true,
+                    MessageId = MessageId.I0000,
+                    Message = Message.GetMessageById(MessageId.I0000)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<List<PostResponseDto>>
+                {
+                    Success = false,
+                    MessageId = MessageId.E0001,
+                    Message = ex.Message
+                };
+            }
+        }
     }
 }

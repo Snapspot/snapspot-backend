@@ -17,7 +17,7 @@ namespace Snapspot.WebAPI.Controllers
             _postUseCase = postUseCase;
         }
 
-        [HttpGet("{spotId}")]
+        [HttpGet("{spotId:guid}")]
         public async Task<IActionResult> GetBySpotId(Guid spotId)
         {
             var result = await _postUseCase.GetPostsBySpotIdAsync(spotId);
@@ -187,6 +187,19 @@ namespace Snapspot.WebAPI.Controllers
             Guid userId = Guid.Parse(userIdClaim.Value);
 
             var result = await _postUseCase.GetSavedPostsAsync(userId);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMyPosts()
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id" || c.Type.EndsWith("nameidentifier"));
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            Guid userId = Guid.Parse(userIdClaim.Value);
+            var result = await _postUseCase.GetMyPostsAsync(userId);
             return Ok(result);
         }
     }
